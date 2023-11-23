@@ -58,7 +58,6 @@ func PatchLocalFile(configuration *cfnpatcher.Configuration, ctx context.Context
 		return nil, err
 	}
 
-	// TODO look for defaults, cannot do better here
 	templateParameters := make([]byte, 0)
 	result, err := cfnpatcher.Patch(loggerCtx, configuration, inputData, templateParameters)
 	if err != nil {
