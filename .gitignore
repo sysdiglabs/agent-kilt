@@ -5,7 +5,4 @@
 /runtimes/cloudformation/cmd/cfn-image-info/cfn-image-info
 /runtimes/cloudformation/cmd/handler/handler
 
-/utilities/launcher/launcher
-/utilities/logshipper/logshipper
 /utilities/waitforever/waitforever
-/utilities/debug-bridge/debug-bridge/debug-bridge
