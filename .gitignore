@@ -4,8 +4,5 @@
 /utilities/waitforever/waitforever
 /utilities/debug-bridge/debug-bridge/debug-bridge
 
-/installer/artifacts
-/installer/kilt
-/installer/cmd/kilt-installer/pkged.go
-/installer/cmd/kilt-installer/kilt-installer
 /dist/
+dist/
