@@ -1,8 +1,8 @@
 package kiltapi
 
 import (
-	"github.com/falcosecurity/kilt/pkg/hocon"
-	"github.com/falcosecurity/kilt/pkg/kilt"
+	"github.com/sysdiglabs/agent-kilt/pkg/hocon"
+	"github.com/sysdiglabs/agent-kilt/pkg/kilt"
 )
 
 func NewKiltFromHocon(definition string) *kilt.Kilt {

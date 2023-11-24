@@ -1,4 +1,4 @@
-module github.com/falcosecurity/kilt/pkg
+module github.com/sysdiglabs/agent-kilt/pkg
 
 go 1.18
 
