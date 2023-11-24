@@ -1,8 +1,11 @@
 .idea/
+
+/runtimes/cloudformation/agent-kilt.zip
+/runtimes/cloudformation/cmd/cfn-apply-kilt/cfn-apply-kilt
+/runtimes/cloudformation/cmd/cfn-image-info/cfn-image-info
+/runtimes/cloudformation/cmd/handler/handler
+
 /utilities/launcher/launcher
 /utilities/logshipper/logshipper
 /utilities/waitforever/waitforever
 /utilities/debug-bridge/debug-bridge/debug-bridge
-
-/dist/
-dist/
