@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/falcosecurity/kilt/pkg/kilt"
+	"github.com/sysdiglabs/agent-kilt/pkg/kilt"
 )
 
 func TestSimpleRuntime(t *testing.T) {

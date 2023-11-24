@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-akka/configuration/hocon"
 
-	"github.com/falcosecurity/kilt/pkg/kilt"
+	"github.com/sysdiglabs/agent-kilt/pkg/kilt"
 )
 
 func retrievePayload(object *hocon.HoconObject) (*kilt.Payload, error) {

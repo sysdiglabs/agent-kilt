@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-akka/configuration"
 
-	"github.com/falcosecurity/kilt/pkg/kilt"
+	"github.com/sysdiglabs/agent-kilt/pkg/kilt"
 )
 
 var defaults = `
