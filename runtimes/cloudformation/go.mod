@@ -1,4 +1,4 @@
-module github.com/falcosecurity/kilt/runtimes/cloudformation
+module github.com/sysdiglabs/agent-kilt/runtimes/cloudformation
 
 go 1.19
 
@@ -6,10 +6,10 @@ require (
 	github.com/Jeffail/gabs/v2 v2.7.0
 	github.com/aws/aws-lambda-go v1.41.0
 	github.com/aws/aws-sdk-go v1.44.284
-	github.com/falcosecurity/kilt/pkg v0.0.0-20230606123839-2e4c434d5d88
 	github.com/google/go-containerregistry v0.15.2
 	github.com/rs/zerolog v1.29.1
 	github.com/stretchr/testify v1.8.1
+	github.com/sysdiglabs/agent-kilt/pkg v0.0.0-20231124131820-71542fa7267c
 	github.com/yudai/gojsondiff v1.0.0
 )
 
