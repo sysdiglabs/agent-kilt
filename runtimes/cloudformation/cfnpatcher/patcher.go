@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/falcosecurity/kilt/pkg/kilt"
-	"github.com/falcosecurity/kilt/pkg/kiltapi"
+	"github.com/sysdiglabs/agent-kilt/pkg/kilt"
+	"github.com/sysdiglabs/agent-kilt/pkg/kiltapi"
 
 	"github.com/Jeffail/gabs/v2"
 	"github.com/rs/zerolog/log"

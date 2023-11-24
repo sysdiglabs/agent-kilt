@@ -8,7 +8,7 @@ import (
 
 	"github.com/rs/zerolog"
 
-	"github.com/falcosecurity/kilt/runtimes/cloudformation/cfnpatcher"
+	"github.com/sysdiglabs/agent-kilt/runtimes/cloudformation/cfnpatcher"
 )
 
 func main() {

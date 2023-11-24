@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/falcosecurity/kilt/runtimes/cloudformation/config"
+	"github.com/sysdiglabs/agent-kilt/runtimes/cloudformation/config"
 
-	"github.com/falcosecurity/kilt/runtimes/cloudformation/cfnpatcher"
+	"github.com/sysdiglabs/agent-kilt/runtimes/cloudformation/cfnpatcher"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/rs/zerolog"

@@ -7,7 +7,7 @@ import (
 	"github.com/Jeffail/gabs/v2"
 	"github.com/rs/zerolog/log"
 
-	"github.com/falcosecurity/kilt/pkg/kilt"
+	"github.com/sysdiglabs/agent-kilt/pkg/kilt"
 )
 
 type TemplateInfo struct {
