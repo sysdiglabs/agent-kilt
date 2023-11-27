@@ -15,7 +15,6 @@ require (
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.4.2-0.20190924003213-a8608b5b67c7 // indirect
 	github.com/docker/docker-credential-helpers v0.6.3 // indirect
-	github.com/falcosecurity/kilt/pkg v0.0.0-20201012153322-cfbae90c1fbc // indirect
 	github.com/go-akka/configuration v0.0.0-20200606091224-a002c0330665 // indirect
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/google/go-containerregistry v0.4.0 // indirect
@@ -38,7 +37,5 @@ require (
 	google.golang.org/grpc v1.32.0 // indirect
 	google.golang.org/protobuf v1.24.0 // indirect
 )
-
-replace github.com/falcosecurity/kilt/pkg => ./../../pkg
 
 replace github.com/falcosecurity/kilt/runtimes/cloudformation => ./../../runtimes/cloudformation
