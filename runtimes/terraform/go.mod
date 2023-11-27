@@ -1,4 +1,4 @@
-module github.com/falcosecurity/kilt/runtimes/terraform
+module github.com/sysdiglabs/agent-kilt/runtimes/terraform
 
 go 1.18
 

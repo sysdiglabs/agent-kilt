@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"github.com/falcosecurity/kilt/runtimes/terraform/tf"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
+	"github.com/sysdiglabs/agent-kilt/runtimes/terraform/tf"
 	"log"
 )
 
