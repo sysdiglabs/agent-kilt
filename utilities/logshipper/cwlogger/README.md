@@ -1,1 +1,0 @@
-This code is from https://github.com/jcxplorer/cwlogger (in https://github.com/jcxplorer/cwlogger/pull/1)

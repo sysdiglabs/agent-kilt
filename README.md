@@ -1,5 +1,8 @@
-# Kilt
-[![Falco Ecosystem Repository](https://github.com/falcosecurity/evolution/blob/main/repos/badges/falco-ecosystem-blue.svg)](https://github.com/falcosecurity/evolution/blob/main/REPOSITORIES.md#ecosystem-scope) [![Incubating](https://img.shields.io/badge/status-incubating-orange?style=for-the-badge)](https://github.com/falcosecurity/evolution/blob/main/REPOSITORIES.md#incubating)
+# agent-kilt
+
+`agent-kilt` provides a convenient way to add additional software to containers by patching ECS TaskDefinitions.
+
+
 
 Kilt is a definition on how to include additional software inside containers. It was created to run falco in userspace
 along other software. It leverages different runtimes to perform modifications to the container
@@ -53,3 +56,15 @@ build {
 }
 ```
 
+
+
+# Release
+
+To make a new release push a new tag. 
+
+It will trigger the [release-runtime.yml](.github/workflows/release-runtimes.yml) workflow.
+
+For tags, use [semver](https://semver.org/).
+
+Before making a new release, check the diff between the previous tag and `master` branch,
+to spot major changes to make release notes as clear as possible.
