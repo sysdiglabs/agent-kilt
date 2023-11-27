@@ -3,7 +3,7 @@ module github.com/sysdiglabs/agent-kilt/runtimes/terraform
 go 1.18
 
 require (
-	github.com/falcosecurity/kilt/runtimes/cloudformation v0.0.0-00010101000000-000000000000
+	github.com/sysdiglabs/agent-kilt/runtimes/cloudformation v0.0.0-00010101000000-000000000000
 	github.com/hashicorp/terraform-plugin-framework v0.1.0
 	github.com/hashicorp/terraform-plugin-go v0.3.1
 )
@@ -38,4 +38,4 @@ require (
 	google.golang.org/protobuf v1.24.0 // indirect
 )
 
-replace github.com/falcosecurity/kilt/runtimes/cloudformation => ./../../runtimes/cloudformation
+replace github.com/sysdiglabs/agent-kilt/runtimes/cloudformation => ./../../runtimes/cloudformation

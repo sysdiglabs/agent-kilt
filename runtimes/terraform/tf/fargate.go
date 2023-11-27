@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/falcosecurity/kilt/runtimes/cloudformation/cfnpatcher"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/sysdiglabs/agent-kilt/runtimes/cloudformation/cfnpatcher"
 )
 
 type cfnProperties struct {

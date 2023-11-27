@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/falcosecurity/kilt/runtimes/cloudformation/cfnpatcher"
 	"github.com/hashicorp/terraform-plugin-framework/schema"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
+	"github.com/sysdiglabs/agent-kilt/runtimes/cloudformation/cfnpatcher"
 )
 
 type dataSourceFargateContainerDefinitions struct {
