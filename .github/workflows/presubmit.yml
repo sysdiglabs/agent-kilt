@@ -8,8 +8,27 @@ env:
   GO_VERSION: 1.20.x
 
 jobs:
+  test-pkg-lib:
+    name: Test pkg lib
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+        id: go
+
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Test
+        run: |
+          cd pkg
+          go test -v ./...
+
   test-cfn-runtime:
-    name: CFN Runtime
+    name: Test CloudFormation Runtime
     runs-on: ubuntu-latest
 
     steps:
@@ -27,8 +46,8 @@ jobs:
           cd runtimes/cloudformation
           go test -v ./...
 
-  test-kilt-lib:
-    name: Kilt Lib
+  build-cfn-runtime:
+    name: Build CloudFormation runtime
     runs-on: ubuntu-latest
 
     steps:
@@ -41,7 +60,6 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Test
+      - name: Build agent-kilt handler
         run: |
-          cd pkg
-          go test -v ./...
+          make -C runtimes/cloudformation clean cmd/handler/handler
