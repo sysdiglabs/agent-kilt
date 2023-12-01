@@ -1,0 +1,45 @@
+name: Release agent-kilt
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  GO_VERSION: 1.20.x
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+        id: go
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build agent-kilt handler
+        run: |
+          make -C runtimes/cloudformation clean cmd/handler/handler
+
+      - name: Archive build
+        run: |
+          zip -j agent-kilt.zip runtimes/cloudformation/cmd/handler/handler
+          sha256sum agent-kilt.zip > checksums.txt
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            agent-kilt.zip
+            checksums.txt
+          tag_name: ${{ github.ref }}
