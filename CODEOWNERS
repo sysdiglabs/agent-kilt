@@ -1,4 +1,2 @@
-approvers:
-  - francesco-racciatti
-  - gnosek
-  - pgcrooks-sysdig
+# Global owners
+    @francesco-racciatti @gnosek @pgcrooks-sysdig
