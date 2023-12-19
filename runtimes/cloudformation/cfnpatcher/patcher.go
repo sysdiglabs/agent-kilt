@@ -3,6 +3,7 @@ package cfnpatcher
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	"github.com/sysdiglabs/agent-kilt/pkg/kilt"
 	"github.com/sysdiglabs/agent-kilt/pkg/kiltapi"
@@ -203,10 +204,17 @@ func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Containe
 		}
 	}
 
-	for k, v := range patch.EnvironmentVariables {
-		keyValue := make(map[string]interface{})
+	keys := make([]string, 0, len(patch.EnvironmentVariables))
+	for k := range patch.EnvironmentVariables {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
 
+	for _, k := range keys {
+		keyValue := make(map[string]interface{})
 		keyValue["Name"] = k
+
+		v := patch.EnvironmentVariables[k]
 
 		if _, ok := cfnInfo.EnvironmentVariables[k]; !ok && configuration.ParameterizeEnvars {
 			keyValue["Value"] = map[string]string{"Ref": getParameterName(k)}
