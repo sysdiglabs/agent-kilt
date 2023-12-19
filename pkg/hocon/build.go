@@ -2,6 +2,7 @@ package hocon
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/go-akka/configuration"
 
@@ -45,10 +46,17 @@ func extractBuild(config *configuration.Config) (*kilt.Build, error) {
 				sidecarEnv := mount.GetKey("environment_variables")
 				if sidecarEnv != nil && sidecarEnv.IsObject() {
 					obj := sidecarEnv.GetObject()
-					for k, v := range obj.Items() {
+					items := obj.Items()
+					keys := make([]string, 0, len(items))
+					for k := range items {
+						keys = append(keys, k)
+					}
+					sort.Strings(keys)
+
+					for _, k := range keys {
 						keyValue := make(map[string]interface{})
 						keyValue["Name"] = k
-						keyValue["Value"] = v.GetString()
+						keyValue["Value"] = items[k].GetString()
 
 						resource.EnvironmentVariables = append(resource.EnvironmentVariables, keyValue)
 					}
