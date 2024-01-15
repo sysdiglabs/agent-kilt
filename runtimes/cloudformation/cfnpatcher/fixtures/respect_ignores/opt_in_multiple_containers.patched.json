@@ -9,8 +9,7 @@
             ],
             "EntryPoint": [
               "/kilt/run",
-              "--",
-              ""
+              "--"
             ],
             "Image": "busybox",
             "LinuxParameters": {
@@ -34,8 +33,7 @@
             ],
             "EntryPoint": [
               "/kilt/run",
-              "--",
-              ""
+              "--"
             ],
             "Image": "busybox",
             "LinuxParameters": {

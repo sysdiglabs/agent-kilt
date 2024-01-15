@@ -11,8 +11,7 @@
             ],
             "EntryPoint": [
               "/kilt/run",
-              "--",
-              ""
+              "--"
             ],
             "Image": "busybox",
             "Name": "app",

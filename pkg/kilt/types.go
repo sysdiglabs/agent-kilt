@@ -7,7 +7,6 @@ type TargetInfo struct {
 	EntryPoint           []string          `json:"entry_point"`
 	Command              []string          `json:"command"`
 	EnvironmentVariables map[string]string `json:"environment_variables"`
-	Metadata             map[string]string `json:"metadata"`
 }
 
 type BuildResource struct {

@@ -64,7 +64,7 @@ var taskPidModeTests = [...]string{
 
 const defaultConfig = `
 build {
-	entry_point: ["/kilt/run", "--", ${?original.metadata.captured_tag}]
+	entry_point: ["/kilt/run", "--"]
 	command: [] ${?original.entry_point} ${?original.command}
 	mount: [
 		{
@@ -80,7 +80,7 @@ build {
 
 const parameterizeEnvarsConfig = `
 build {
-	entry_point: ["/kilt/run", "--", ${?original.metadata.captured_tag}]
+	entry_point: ["/kilt/run", "--"]
 	command: [] ${?original.entry_point} ${?original.command}
 	environment_variables: {
 		"SO_LONG_AND_THANKS": "ForAllTheFish"
@@ -99,7 +99,7 @@ build {
 
 const sidecarEnvConfig = `
 build {
-	entry_point: ["/kilt/run", "--", ${?original.metadata.captured_tag}]
+	entry_point: ["/kilt/run", "--"]
 	command: [] ${?original.entry_point} ${?original.command}
 	mount: [
 		{
@@ -118,7 +118,7 @@ build {
 
 const taskPidModeConfig = `
 build {
-	entry_point: ["/kilt/run", "--", ${?original.metadata.captured_tag}]
+	entry_point: ["/kilt/run", "--"]
 	command: [] ${?original.entry_point} ${?original.command}
 	mount: [
 		{
