@@ -1,15 +1,13 @@
-package hocon
+package kilt
 
 import (
 	"fmt"
 
 	"github.com/go-akka/configuration"
-
-	"github.com/sysdiglabs/agent-kilt/pkg/kilt"
 )
 
-func extractRuntime(config *configuration.Config) (*kilt.Runtime, error) {
-	r := new(kilt.Runtime)
+func extractRuntime(config *configuration.Config) (*Runtime, error) {
+	r := new(Runtime)
 
 	if config.IsArray("runtime.upload") {
 		uploads := config.GetValue("runtime.upload").GetArray()
@@ -19,7 +17,7 @@ func extractRuntime(config *configuration.Config) (*kilt.Runtime, error) {
 				var err error
 				upload := u.GetObject()
 
-				newUpload := new(kilt.RuntimeUpload)
+				newUpload := new(RuntimeUpload)
 
 				newUpload.Payload, err = retrievePayload(upload)
 				if err != nil {
@@ -32,9 +30,9 @@ func extractRuntime(config *configuration.Config) (*kilt.Runtime, error) {
 					return nil, fmt.Errorf("could not extract destination for entry %d: 'as' cannot be empty", k)
 				}
 
-				newUpload.Uid = getWithDefaultUint16(upload, "uid", kilt.DefaultUserID)
-				newUpload.Gid = getWithDefaultUint16(upload, "gid", kilt.DefaultGroupID)
-				newUpload.Permissions = getWithDefaultUint32(upload, "permissions", kilt.DefaultPermissions)
+				newUpload.Uid = getWithDefaultUint16(upload, "uid", DefaultUserID)
+				newUpload.Gid = getWithDefaultUint16(upload, "gid", DefaultGroupID)
+				newUpload.Permissions = getWithDefaultUint32(upload, "permissions", DefaultPermissions)
 
 				r.Uploads = append(r.Uploads, *newUpload)
 			}
@@ -52,7 +50,7 @@ func extractRuntime(config *configuration.Config) (*kilt.Runtime, error) {
 					return nil, fmt.Errorf("could not add exec at entry %d: run cannot have 0 arguments", k)
 				}
 
-				r.Executables = append(r.Executables, kilt.RuntimeExecutable{Run: execParams})
+				r.Executables = append(r.Executables, RuntimeExecutable{Run: execParams})
 			}
 		}
 	}

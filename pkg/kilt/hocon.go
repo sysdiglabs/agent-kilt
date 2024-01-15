@@ -1,12 +1,10 @@
-package hocon
+package kilt
 
 import (
 	"encoding/json"
 	"fmt"
 
 	"github.com/go-akka/configuration"
-
-	"github.com/sysdiglabs/agent-kilt/pkg/kilt"
 )
 
 var defaults = `
@@ -39,7 +37,7 @@ func NewKiltHoconWithConfig(definition string, recipeConfig string) *KiltHocon {
 	return h
 }
 
-func (k *KiltHocon) prepareFullStringConfig(info *kilt.TargetInfo) (*configuration.Config, error) {
+func (k *KiltHocon) prepareFullStringConfig(info *TargetInfo) (*configuration.Config, error) {
 	rawVars, err := json.Marshal(info)
 	if err != nil {
 		return nil, fmt.Errorf("could not serialize info: %w", err)
@@ -54,7 +52,7 @@ func (k *KiltHocon) prepareFullStringConfig(info *kilt.TargetInfo) (*configurati
 	return configuration.ParseString(configString), nil
 }
 
-func (k *KiltHocon) Build(info *kilt.TargetInfo) (*kilt.Build, error) {
+func (k *KiltHocon) Build(info *TargetInfo) (*Build, error) {
 	config, err := k.prepareFullStringConfig(info)
 	if err != nil {
 		return nil, fmt.Errorf("could not assemble full config: %w", err)
@@ -63,7 +61,7 @@ func (k *KiltHocon) Build(info *kilt.TargetInfo) (*kilt.Build, error) {
 	return extractBuild(config)
 }
 
-func (k *KiltHocon) Runtime(info *kilt.TargetInfo) (*kilt.Runtime, error) {
+func (k *KiltHocon) Runtime(info *TargetInfo) (*Runtime, error) {
 	config, err := k.prepareFullStringConfig(info)
 	if err != nil {
 		return nil, fmt.Errorf("could not assemble full config: %w", err)
@@ -74,8 +72,8 @@ func (k *KiltHocon) Runtime(info *kilt.TargetInfo) (*kilt.Runtime, error) {
 	return extractRuntime(config)
 }
 
-func (k *KiltHocon) Task() (*kilt.Task, error) {
-	config, err := k.prepareFullStringConfig(&kilt.TargetInfo{})
+func (k *KiltHocon) Task() (*Task, error) {
+	config, err := k.prepareFullStringConfig(&TargetInfo{})
 	if err != nil {
 		return nil, fmt.Errorf("could not assemble full config: %w", err)
 	}
