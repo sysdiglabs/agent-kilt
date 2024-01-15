@@ -1,16 +1,14 @@
-package hocon
+package kilt
 
 import (
 	"fmt"
 	"sort"
 
 	"github.com/go-akka/configuration"
-
-	"github.com/sysdiglabs/agent-kilt/pkg/kilt"
 )
 
-func extractBuild(config *configuration.Config) (*kilt.Build, error) {
-	b := new(kilt.Build)
+func extractBuild(config *configuration.Config) (*Build, error) {
+	b := new(Build)
 
 	b.Image = config.GetString("build.image")
 	b.EntryPoint = config.GetStringList("build.entry_point")
@@ -36,7 +34,7 @@ func extractBuild(config *configuration.Config) (*kilt.Build, error) {
 			if m.IsObject() {
 				mount := m.GetObject()
 
-				resource := kilt.BuildResource{
+				resource := BuildResource{
 					Name:       mount.GetKey("name").GetString(),
 					Image:      mount.GetKey("image").GetString(),
 					Volumes:    mount.GetKey("volumes").GetStringList(),

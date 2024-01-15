@@ -6,7 +6,6 @@ import (
 	"sort"
 
 	"github.com/sysdiglabs/agent-kilt/pkg/kilt"
-	"github.com/sysdiglabs/agent-kilt/pkg/kiltapi"
 
 	"github.com/Jeffail/gabs/v2"
 	"github.com/rs/zerolog/log"
@@ -29,7 +28,7 @@ func shouldSkip(info *kilt.TargetInfo, configuration *Configuration, hints *Inst
 }
 
 func applyParametersPatch(ctx context.Context, template *gabs.Container, configuration *Configuration) (*gabs.Container, error) {
-	k := kiltapi.NewKiltFromHoconWithConfig(configuration.Kilt, configuration.RecipeConfig)
+	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig)
 	build, _ := k.Build(new(kilt.TargetInfo))
 	for k, v := range build.EnvironmentVariables {
 		keyStripped := getParameterName(k)
@@ -44,7 +43,7 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 
 	successes := 0
 	containers := make(map[string]kilt.BuildResource)
-	k := kiltapi.NewKiltFromHoconWithConfig(configuration.Kilt, configuration.RecipeConfig)
+	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig)
 
 	taskPatch, err := k.Task()
 	if err != nil {

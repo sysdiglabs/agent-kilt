@@ -1,4 +1,4 @@
-package hocon
+package kilt
 
 import (
 	"github.com/go-akka/configuration"
