@@ -9,8 +9,7 @@
             ],
             "EntryPoint": [
               "/kilt/run",
-              "--",
-              "somearg"
+              "--"
             ],
             "Image": "busybox",
             "LinuxParameters": {

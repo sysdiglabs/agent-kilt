@@ -25,8 +25,3 @@ task definition:
   container names. Will include only some contaiers in opt-in mode
 * `"kilt-ignore-containers": "containerA:containerB"` - will exclude some containers in 
   opt-out mode
-  
-
-# Metadata offered
-Inside the kilt definitions `original.metadata` is a hashmap containing tags of the
-task definition.

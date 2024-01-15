@@ -9,8 +9,7 @@
             ],
             "EntryPoint": [
               "/kilt/run",
-              "--",
-              ""
+              "--"
             ],
             "Image": { "Ref": "Parameter"},
             "Name": "app",

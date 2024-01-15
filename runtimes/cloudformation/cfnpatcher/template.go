@@ -11,7 +11,7 @@ import (
 )
 
 type TemplateInfo struct {
-	TargetInfo           *kilt.TargetInfo
+	TargetInfo *kilt.TargetInfo
 	// Containers are not null when template values are complex
 	Name                 *gabs.Container
 	Image                *gabs.Container
@@ -45,7 +45,6 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 	info.ContainerGroupName = groupName
 	info.EnvironmentVariables = make(map[string]string)
 	cfnInfo.EnvironmentVariables = make(map[string]*gabs.Container)
-	info.Metadata = make(map[string]string)
 
 	if container.Exists("Image") {
 		info.Image, cfnInfo.Image = GetValueFromTemplate(container.S("Image"))
@@ -87,7 +86,7 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 
 	if container.Exists("EntryPoint") {
 		info.EntryPoint = make([]string, 0)
-		cfnInfo.EntryPoint = make([]*gabs.Container,0)
+		cfnInfo.EntryPoint = make([]*gabs.Container, 0)
 		for _, arg := range container.S("EntryPoint").Children() {
 			passthrough, templateVal := GetValueFromTemplate(arg)
 			cfnInfo.EntryPoint = append(cfnInfo.EntryPoint, templateVal)
@@ -99,7 +98,7 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 
 	if container.Exists("Command") {
 		info.Command = make([]string, 0)
-		cfnInfo.Command = make([]*gabs.Container,0)
+		cfnInfo.Command = make([]*gabs.Container, 0)
 		for _, arg := range container.S("Command").Children() {
 			passthrough, templateVal := GetValueFromTemplate(arg)
 			cfnInfo.Command = append(cfnInfo.Command, templateVal)
@@ -112,7 +111,7 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 	if container.Exists("Environment") {
 		for _, env := range container.S("Environment").Children() {
 			k, ok := env.S("Name").Data().(string)
-			if ! ok {
+			if !ok {
 				l.Fatal().Str("Fragment", env.S("Name").String()).Str("TaskDefinition", groupName).Msg("Environment has an unsupported value type. Expected string")
 			}
 			passthrough, templateVal := GetValueFromTemplate(env.S("Value"))
@@ -121,22 +120,6 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 			info.EnvironmentVariables[k] = passthrough
 		}
 	}
-
-	if group.Exists("Properties", "Tags") {
-		for _, tag := range group.S("Properties", "Tags").Children() {
-			if tag.Exists("Key") && tag.Exists("Value") {
-				k, ok := tag.S("Key").Data().(string)
-				if !ok {
-					l.Fatal().Str("Fragment", tag.String()).Str("TaskDefinition", groupName).Msg("Tags has an unsupported key type")
-				}
-
-				passthrough, _ := GetValueFromTemplate(tag.S("Value"))
-				info.Metadata[k] = passthrough
-			}
-		}
-	}
-
-	// TODO(admiral0): metadata tags
 
 	return cfnInfo
 }

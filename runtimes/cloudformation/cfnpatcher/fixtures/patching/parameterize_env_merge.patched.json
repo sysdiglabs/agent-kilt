@@ -19,8 +19,7 @@
             ],
             "EntryPoint": [
               "/kilt/run",
-              "--",
-              ""
+              "--"
             ],
             "Environment": [
               {
