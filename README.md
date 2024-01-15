@@ -29,13 +29,6 @@ is not running yet. Run time is well, you get it.
     * **build.mount.image** `str` - the image that contains the volume of the mount
     * **build.mount.volumes** `List(str)` - List of paths to be mounted on the target image
     * **build.mount.entry_point** `List(str)` - The entry point of the image (needed for patching runtimes)
-* **runtime.upload** `List(Dict(str,str))` - add binaries to the running image
-    * **runtime.upload[].as** `str` - target path
-    * **runtime.upload[].uid** `int` - the user id that will own the file (default: 0)
-    * **runtime.upload[].gid** `int` - the group id that will own the file (default: 0)
-    * **runtime.upload[].permissions** `int` - permissions for the file (default: 0755)
-* **runtime.exec** `List(Dict)` - list of executables to run
-    * **runtime.exec[].run** `List(str)` - executable to run
 ### Example
 ```
 build {
