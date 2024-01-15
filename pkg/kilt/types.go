@@ -1,11 +1,5 @@
 package kilt
 
-const (
-	DefaultUserID      = 0
-	DefaultGroupID     = 0
-	DefaultPermissions = 0755
-)
-
 type TargetInfo struct {
 	Image                string            `json:"image"`
 	ContainerName        string            `json:"container_name"`
@@ -38,41 +32,7 @@ type Task struct {
 	PidMode string // the only value is `task` right now
 }
 
-type RuntimeUpload struct {
-	Payload     *Payload
-	Destination string
-	Uid         uint16
-	Gid         uint16
-	Permissions uint32
-}
-
-type RuntimeExecutable struct {
-	Run []string
-}
-
-type Runtime struct {
-	Uploads     []RuntimeUpload
-	Executables []RuntimeExecutable
-}
-
-type PayloadType string
-
-const (
-	URL       PayloadType = "url"
-	LocalPath PayloadType = "local-path"
-	Base64    PayloadType = "base64"
-	Text      PayloadType = "text"
-	Unknown   PayloadType = "unknown"
-)
-
-type Payload struct {
-	Contents string
-	Type     PayloadType
-	Gzipped  bool
-}
-
 type LanguageInterface interface {
 	Build(info *TargetInfo) (*Build, error)
-	Runtime(info *TargetInfo) (*Runtime, error)
 	Task() (*Task, error)
 }

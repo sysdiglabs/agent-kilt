@@ -61,17 +61,6 @@ func (k *KiltHocon) Build(info *TargetInfo) (*Build, error) {
 	return extractBuild(config)
 }
 
-func (k *KiltHocon) Runtime(info *TargetInfo) (*Runtime, error) {
-	config, err := k.prepareFullStringConfig(info)
-	if err != nil {
-		return nil, fmt.Errorf("could not assemble full config: %w", err)
-	}
-	if !config.HasPath("runtime") {
-		return nil, fmt.Errorf("definition does not have a runtime section")
-	}
-	return extractRuntime(config)
-}
-
 func (k *KiltHocon) Task() (*Task, error) {
 	config, err := k.prepareFullStringConfig(&TargetInfo{})
 	if err != nil {
