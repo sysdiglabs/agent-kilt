@@ -68,7 +68,15 @@ func extractBuild(config *configuration.Config) (*Build, error) {
 		b.Capabilities = make([]string, 0)
 	}
 
-	b.EnvironmentVariables = extractToStringMap(config, "build.environment_variables")
+	b.EnvironmentVariables = make(map[string]*gabs.Container)
+	env := config.GetValue("build.environment_variables")
+	if env != nil && env.IsObject() {
+		for k, v := range env.GetObject().Items() {
+			envVar := gabs.New()
+			envVar.Set(renderHoconValue(v))
+			b.EnvironmentVariables[k] = envVar
+		}
+	}
 
 	if config.IsArray("build.mount") {
 		mounts := config.GetValue("build.mount").GetArray()

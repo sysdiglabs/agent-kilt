@@ -12,8 +12,6 @@ import (
 
 type TemplateInfo struct {
 	TargetInfo *kilt.TargetInfo
-	// Containers are not null when template values are complex
-	EnvironmentVariables map[string]*gabs.Container
 }
 
 func GetValueFromTemplate(what *gabs.Container) (string, *gabs.Container) {
@@ -39,8 +37,7 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 
 	info.ContainerName = container.S("Name")
 	info.ContainerGroupName = groupName
-	info.EnvironmentVariables = make(map[string]string)
-	cfnInfo.EnvironmentVariables = make(map[string]*gabs.Container)
+	info.EnvironmentVariables = make(map[string]*gabs.Container)
 
 	if container.Exists("Image") {
 		info.Image = container.S("Image")
@@ -100,10 +97,8 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 			if !ok {
 				l.Fatal().Str("Fragment", env.S("Name").String()).Str("TaskDefinition", groupName).Msg("Environment has an unsupported value type. Expected string")
 			}
-			passthrough, templateVal := GetValueFromTemplate(env.S("Value"))
 
-			cfnInfo.EnvironmentVariables[k] = templateVal
-			info.EnvironmentVariables[k] = passthrough
+			info.EnvironmentVariables[k] = env.S("Value")
 		}
 	}
 
