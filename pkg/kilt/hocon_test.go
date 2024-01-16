@@ -17,19 +17,6 @@ func toStringOrEmpty(c interface{}) string {
 	}
 }
 
-func toStringArrayOrEmpty(c *gabs.Container) []string {
-	switch c.Data().(type) {
-	case []interface{}:
-		var arr []string
-		for _, v := range c.Data().([]interface{}) {
-			arr = append(arr, toStringOrEmpty(v))
-		}
-		return arr
-	default:
-		return []string{}
-	}
-}
-
 func readInput(path string) *TargetInfo {
 	targetInfoString, _ := os.ReadFile(path)
 	gabsInfo, _ := gabs.ParseJSON(targetInfoString)
@@ -37,7 +24,7 @@ func readInput(path string) *TargetInfo {
 	info.Image = toStringOrEmpty(gabsInfo.S("image").Data())
 	info.ContainerName = toStringOrEmpty(gabsInfo.S("container_name").Data())
 	info.ContainerGroupName = toStringOrEmpty(gabsInfo.S("container_group_name").Data())
-	info.EntryPoint = toStringArrayOrEmpty(gabsInfo.S("entry_point"))
+	info.EntryPoint = gabsInfo.S("entry_point")
 	info.Command = gabsInfo.S("command")
 	info.EnvironmentVariables = make(map[string]string)
 	for k, v := range gabsInfo.S("environment_variables").ChildrenMap() {
@@ -54,7 +41,7 @@ func TestSimpleBuild(t *testing.T) {
 	b, _ := k.Build(info)
 
 	assert.Equal(t, "busybox:latest", b.Image)
-	assert.Equal(t, "/falco/pdig", b.EntryPoint[0])
+	assert.Equal(t, "/falco/pdig", b.EntryPoint.Children()[0].Data())
 	assert.Equal(t, "true", b.EnvironmentVariables["TEST"])
 	assert.Equal(t, 1, len(b.Resources))
 }
