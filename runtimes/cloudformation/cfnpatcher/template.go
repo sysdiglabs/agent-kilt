@@ -10,29 +10,8 @@ import (
 	"github.com/sysdiglabs/agent-kilt/pkg/kilt"
 )
 
-type TemplateInfo struct {
-	TargetInfo *kilt.TargetInfo
-}
-
-func GetValueFromTemplate(what *gabs.Container) (string, *gabs.Container) {
-	var result string
-	var fallback *gabs.Container
-
-	switch v := what.Data().(type) {
-	case string:
-		result = v
-		fallback = nil
-	default:
-		result = "placeholder: " + what.String()
-		fallback = what
-	}
-	return result, fallback
-}
-
-func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName string, container, parameters *gabs.Container, configuration *Configuration) *TemplateInfo {
-	cfnInfo := new(TemplateInfo)
+func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName string, container, parameters *gabs.Container, configuration *Configuration) *kilt.TargetInfo {
 	info := new(kilt.TargetInfo)
-	cfnInfo.TargetInfo = info
 	l := log.Ctx(ctx)
 
 	info.ContainerName = container.S("Name")
@@ -102,5 +81,5 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 		}
 	}
 
-	return cfnInfo
+	return info
 }
