@@ -16,7 +16,6 @@ type TemplateInfo struct {
 	Name                 *gabs.Container
 	Image                *gabs.Container
 	EntryPoint           []*gabs.Container
-	Command              []*gabs.Container
 	EnvironmentVariables map[string]*gabs.Container
 }
 
@@ -77,8 +76,8 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 					cfnInfo.EntryPoint = make([]*gabs.Container, len(info.EntryPoint))
 				}
 				if repoInfo.Command != nil {
-					info.Command = repoInfo.Command
-					cfnInfo.Command = make([]*gabs.Container, len(info.Command))
+					info.Command = gabs.New()
+					info.Command.Set(repoInfo.Command)
 				}
 			}
 		}
@@ -97,13 +96,8 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 	}
 
 	if container.Exists("Command") {
-		info.Command = make([]string, 0)
-		cfnInfo.Command = make([]*gabs.Container, 0)
-		for _, arg := range container.S("Command").Children() {
-			passthrough, templateVal := GetValueFromTemplate(arg)
-			cfnInfo.Command = append(cfnInfo.Command, templateVal)
-			info.Command = append(info.Command, passthrough)
-		}
+		info.Command = gabs.New()
+		info.Command.Set(container.S("Command").Children())
 	} else {
 		l.Warn().Str("image", info.Image).Msg("no Command was specified")
 	}

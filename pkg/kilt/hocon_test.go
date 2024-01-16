@@ -38,7 +38,7 @@ func readInput(path string) *TargetInfo {
 	info.ContainerName = toStringOrEmpty(gabsInfo.S("container_name").Data())
 	info.ContainerGroupName = toStringOrEmpty(gabsInfo.S("container_group_name").Data())
 	info.EntryPoint = toStringArrayOrEmpty(gabsInfo.S("entry_point"))
-	info.Command = toStringArrayOrEmpty(gabsInfo.S("command"))
+	info.Command = gabsInfo.S("command")
 	info.EnvironmentVariables = make(map[string]string)
 	for k, v := range gabsInfo.S("environment_variables").ChildrenMap() {
 		info.EnvironmentVariables[k] = v.Data().(string)

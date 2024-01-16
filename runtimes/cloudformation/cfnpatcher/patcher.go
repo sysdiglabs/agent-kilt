@@ -155,13 +155,12 @@ func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Containe
 	l := log.Ctx(ctx)
 
 	finalEntryPoint := postPatchReplace(patch.EntryPoint, cfnInfo.TargetInfo.EntryPoint, cfnInfo.EntryPoint)
-	finalCommand := postPatchReplace(patch.Command, cfnInfo.TargetInfo.Command, cfnInfo.Command)
 
 	_, err := container.Set(finalEntryPoint, "EntryPoint")
 	if err != nil {
 		return fmt.Errorf("could not set EntryPoint: %w", err)
 	}
-	_, err = container.Set(finalCommand, "Command")
+	_, err = container.Set(patch.Command, "Command")
 	if err != nil {
 		return fmt.Errorf("could not set Command: %w", err)
 	}

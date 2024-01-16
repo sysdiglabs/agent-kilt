@@ -1,11 +1,13 @@
 package kilt
 
+import "github.com/Jeffail/gabs/v2"
+
 type TargetInfo struct {
 	Image                string            `json:"image"`
 	ContainerName        string            `json:"container_name"`
 	ContainerGroupName   string            `json:"container_group_name"`
 	EntryPoint           []string          `json:"entry_point"`
-	Command              []string          `json:"command"`
+	Command              *gabs.Container   `json:"command"`
 	EnvironmentVariables map[string]string `json:"environment_variables"`
 }
 
@@ -20,7 +22,7 @@ type BuildResource struct {
 type Build struct {
 	Image                string
 	EntryPoint           []string
-	Command              []string
+	Command              *gabs.Container
 	EnvironmentVariables map[string]string
 	Capabilities         []string
 
