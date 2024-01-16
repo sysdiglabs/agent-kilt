@@ -30,8 +30,3 @@ type Build struct {
 type Task struct {
 	PidMode string // the only value is `task` right now
 }
-
-type LanguageInterface interface {
-	Build(info *TargetInfo) (*Build, error)
-	Task() (*Task, error)
-}
