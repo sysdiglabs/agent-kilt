@@ -43,9 +43,14 @@ func extractBuild(config *configuration.Config) (*Build, error) {
 	b := new(Build)
 
 	b.Image = config.GetString("build.image")
-	b.EntryPoint = config.GetStringList("build.entry_point")
-	if b.EntryPoint == nil {
-		b.EntryPoint = make([]string, 0)
+
+	b.EntryPoint = gabs.New()
+	b.EntryPoint.Set(make([]interface{}, 0))
+	rawEntryPoint := config.GetValue("build.entry_point").GetArray()
+	if rawEntryPoint != nil {
+		for _, c := range rawEntryPoint {
+			b.EntryPoint.ArrayAppend(renderHoconValue(c))
+		}
 	}
 
 	b.Command = gabs.New()
