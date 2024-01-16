@@ -38,7 +38,8 @@ func TestSimpleBuild(t *testing.T) {
 	definitionString, _ := os.ReadFile("./fixtures/kilt.cfg")
 
 	k := NewKiltHocon(string(definitionString))
-	b, _ := k.Build(info)
+	container := gabs.New()
+	b, _ := k.Patch(container, info)
 
 	assert.Equal(t, "busybox:latest", toStringOrEmpty(b.Image.Data()))
 	assert.Equal(t, "/falco/pdig", b.EntryPoint.Children()[0].Data())
@@ -51,7 +52,8 @@ func TestEnvironmentVariables(t *testing.T) {
 	definitionString, _ := os.ReadFile("./fixtures/kilt_env_vars.cfg")
 
 	k := NewKiltHocon(string(definitionString))
-	b, _ := k.Build(info)
+	container := gabs.New()
+	b, _ := k.Patch(container, info)
 
 	assert.Containsf(t, b.EnvironmentVariables, "PREEXISTING", "does not contain preexisting vars")
 	assert.Equal(t, "true", toStringOrEmpty(b.EnvironmentVariables["PREEXISTING"].Data()))

@@ -3,7 +3,7 @@ package kilt
 import (
 	"encoding/json"
 	"fmt"
-
+	"github.com/Jeffail/gabs/v2"
 	"github.com/go-akka/configuration"
 )
 
@@ -79,13 +79,13 @@ func (k *KiltHocon) prepareFullStringConfig(info *TargetInfo) (*configuration.Co
 	return configuration.ParseString(configString), nil
 }
 
-func (k *KiltHocon) Build(info *TargetInfo) (*Build, error) {
+func (k *KiltHocon) Patch(container *gabs.Container, info *TargetInfo) (*Build, error) {
 	config, err := k.prepareFullStringConfig(info)
 	if err != nil {
 		return nil, fmt.Errorf("could not assemble full config: %w", err)
 	}
 
-	return extractBuild(config)
+	return applyPatch(nil, config)
 }
 
 func (k *KiltHocon) Task() (*Task, error) {
