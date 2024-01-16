@@ -3,12 +3,12 @@ package kilt
 import "github.com/Jeffail/gabs/v2"
 
 type TargetInfo struct {
-	Image                *gabs.Container   `json:"image"`
-	ContainerName        *gabs.Container   `json:"container_name"`
-	ContainerGroupName   string            `json:"container_group_name"`
-	EntryPoint           *gabs.Container   `json:"entry_point"`
-	Command              *gabs.Container   `json:"command"`
-	EnvironmentVariables map[string]string `json:"environment_variables"`
+	Image                *gabs.Container            `json:"image"`
+	ContainerName        *gabs.Container            `json:"container_name"`
+	ContainerGroupName   string                     `json:"container_group_name"`
+	EntryPoint           *gabs.Container            `json:"entry_point"`
+	Command              *gabs.Container            `json:"command"`
+	EnvironmentVariables map[string]*gabs.Container `json:"environment_variables"`
 }
 
 type BuildResource struct {
@@ -23,7 +23,7 @@ type Build struct {
 	Image                *gabs.Container
 	EntryPoint           *gabs.Container
 	Command              *gabs.Container
-	EnvironmentVariables map[string]string
+	EnvironmentVariables map[string]*gabs.Container
 	Capabilities         []string
 
 	Resources []BuildResource
