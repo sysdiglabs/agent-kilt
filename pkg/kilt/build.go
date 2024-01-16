@@ -2,10 +2,42 @@ package kilt
 
 import (
 	"fmt"
+	"github.com/Jeffail/gabs/v2"
+	"github.com/go-akka/configuration/hocon"
 	"sort"
 
 	"github.com/go-akka/configuration"
 )
+
+func renderHoconValue(v *hocon.HoconValue) interface{} {
+	if v.IsObject() {
+		obj := v.GetObject()
+		items := obj.Items()
+		if len(items) == 0 {
+			return nil
+		}
+
+		dics := map[string]interface{}{}
+		for k, v := range items {
+			dics[k] = renderHoconValue(v)
+		}
+
+		return dics
+	} else if v.IsArray() {
+		arr := v.GetArray()
+		if len(arr) == 0 {
+			return nil
+		}
+
+		var items []interface{}
+		for _, v := range arr {
+			items = append(items, renderHoconValue(v))
+		}
+		return items
+	} else {
+		return v.GetString()
+	}
+}
 
 func extractBuild(config *configuration.Config) (*Build, error) {
 	b := new(Build)
@@ -15,9 +47,14 @@ func extractBuild(config *configuration.Config) (*Build, error) {
 	if b.EntryPoint == nil {
 		b.EntryPoint = make([]string, 0)
 	}
-	b.Command = config.GetStringList("build.command")
-	if b.Command == nil {
-		b.Command = make([]string, 0)
+
+	b.Command = gabs.New()
+	b.Command.Set(make([]interface{}, 0))
+	rawCommand := config.GetValue("build.command").GetArray()
+	if rawCommand != nil {
+		for _, c := range rawCommand {
+			b.Command.ArrayAppend(renderHoconValue(c))
+		}
 	}
 
 	b.Capabilities = config.GetStringList("build.capabilities")
