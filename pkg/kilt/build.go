@@ -42,7 +42,8 @@ func renderHoconValue(v *hocon.HoconValue) interface{} {
 func extractBuild(config *configuration.Config) (*Build, error) {
 	b := new(Build)
 
-	b.Image = config.GetString("build.image")
+	b.Image = gabs.New()
+	b.Image.Set(renderHoconValue(config.GetValue("build.image")))
 
 	b.EntryPoint = gabs.New()
 	b.EntryPoint.Set(make([]interface{}, 0))
