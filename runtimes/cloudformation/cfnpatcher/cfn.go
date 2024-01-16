@@ -29,7 +29,7 @@ const KiltIncludeTag = "kilt-include"
 const KiltIgnoreContainersTag = "kilt-ignore-containers"
 const KiltIncludeContainersTag = "kilt-include-containers"
 
-var OptTagKeys = []string {KiltIgnoreTag, KiltIncludeTag, KiltIgnoreContainersTag, KiltIncludeContainersTag}
+var OptTagKeys = []string{KiltIgnoreTag, KiltIncludeTag, KiltIgnoreContainersTag, KiltIncludeContainersTag}
 
 func isOptTagKey(key string) bool {
 	for _, v := range OptTagKeys {
@@ -90,18 +90,13 @@ func Patch(ctx context.Context, configuration *Configuration, fragment, template
 
 	for name, resource := range template.S("Resources").ChildrenMap() {
 		if matchFargate(resource) {
-
 			optTags := getOptTags(resource)
-
 			if isIgnored(optTags, configuration.OptIn) {
 				l.Info().Str("resource", name).Msg("ignored resource due to tag")
 				continue
 			}
+
 			l.Info().Str("resource", name).Msg("patching task definition")
-			if err != nil {
-				l.Error().Err(err).Str("resource", name).Msg("could not generate kilt instructions")
-				continue
-			}
 			hints := extractHintsFromTags(optTags)
 			_, err = applyTaskDefinitionPatch(ctx, name, resource, parameters, configuration, hints)
 			if err != nil {
