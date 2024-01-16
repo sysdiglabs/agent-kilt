@@ -22,10 +22,6 @@ type KiltHocon struct {
 	config     string
 }
 
-type HoconProvided struct {
-	Image string `json:"image"`
-}
-
 func NewKiltHocon(definition string) *KiltHocon {
 	return NewKiltHoconWithConfig(definition, "{}")
 }
