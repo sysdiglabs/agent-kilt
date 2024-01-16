@@ -38,7 +38,9 @@ func shouldSkip(info *kilt.TargetInfo, configuration *Configuration, hints *Inst
 
 func applyParametersPatch(ctx context.Context, template *gabs.Container, configuration *Configuration) (*gabs.Container, error) {
 	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig)
-	build, _ := k.Patch(nil, new(kilt.TargetInfo))
+	container := gabs.New()
+	container.Set(make(map[string]interface{}))
+	build, _ := k.Patch(container, new(kilt.TargetInfo))
 	for k, v := range build.EnvironmentVariables {
 		keyStripped := getParameterName(k)
 		template.Set("String", "Parameters", keyStripped, "Type")
@@ -81,7 +83,7 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 				l.Info().Msgf("skipping container due to hints in tags")
 				continue
 			}
-			patch, err := k.Patch(nil, info)
+			patch, err := k.Patch(container, info)
 			if err != nil {
 				return nil, fmt.Errorf("could not construct kilt patch: %w", err)
 			}
@@ -128,16 +130,7 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Container, patch *kilt.Build, configuration *Configuration) error {
 	l := log.Ctx(ctx)
 
-	_, err := container.Set(patch.EntryPoint, "EntryPoint")
-	if err != nil {
-		return fmt.Errorf("could not set EntryPoint: %w", err)
-	}
-	_, err = container.Set(patch.Command, "Command")
-	if err != nil {
-		return fmt.Errorf("could not set Command: %w", err)
-	}
-
-	_, err = container.Set(patch.Image, "Image")
+	_, err := container.Set(patch.Command, "Command")
 	if err != nil {
 		return fmt.Errorf("could not set Command: %w", err)
 	}

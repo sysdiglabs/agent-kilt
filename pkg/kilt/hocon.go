@@ -85,7 +85,7 @@ func (k *KiltHocon) Patch(container *gabs.Container, info *TargetInfo) (*Build, 
 		return nil, fmt.Errorf("could not assemble full config: %w", err)
 	}
 
-	return applyPatch(nil, config)
+	return applyPatch(container, config)
 }
 
 func (k *KiltHocon) Task() (*Task, error) {

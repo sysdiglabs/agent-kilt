@@ -42,16 +42,22 @@ func renderHoconValue(v *hocon.HoconValue) interface{} {
 func applyPatch(container *gabs.Container, config *configuration.Config) (*Build, error) {
 	b := new(Build)
 
-	b.Image = gabs.New()
-	b.Image.Set(renderHoconValue(config.GetValue("build.image")))
+	_, err := container.Set(renderHoconValue(config.GetValue("build.image")), "Image")
+	if err != nil {
+		return nil, fmt.Errorf("could not set image: %w", err)
+	}
 
-	b.EntryPoint = gabs.New()
-	b.EntryPoint.Set(make([]interface{}, 0))
+	entryPoint := gabs.New()
+	entryPoint.Set(make([]interface{}, 0))
 	rawEntryPoint := config.GetValue("build.entry_point").GetArray()
 	if rawEntryPoint != nil {
 		for _, c := range rawEntryPoint {
-			b.EntryPoint.ArrayAppend(renderHoconValue(c))
+			entryPoint.ArrayAppend(renderHoconValue(c))
 		}
+	}
+	_, err = container.Set(entryPoint.Data(), "EntryPoint")
+	if err != nil {
+		return nil, fmt.Errorf("could not set entry point: %w", err)
 	}
 
 	b.Command = gabs.New()

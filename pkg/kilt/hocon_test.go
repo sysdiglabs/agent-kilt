@@ -41,8 +41,8 @@ func TestSimpleBuild(t *testing.T) {
 	container := gabs.New()
 	b, _ := k.Patch(container, info)
 
-	assert.Equal(t, "busybox:latest", toStringOrEmpty(b.Image.Data()))
-	assert.Equal(t, "/falco/pdig", b.EntryPoint.Children()[0].Data())
+	assert.Equal(t, "busybox:latest", toStringOrEmpty(container.S("Image").Data()))
+	assert.Equal(t, "/falco/pdig", toStringOrEmpty(container.S("EntryPoint").Children()[0].Data()))
 	assert.Equal(t, "true", toStringOrEmpty(b.EnvironmentVariables["TEST"].Data()))
 	assert.Equal(t, 1, len(b.Resources))
 }
