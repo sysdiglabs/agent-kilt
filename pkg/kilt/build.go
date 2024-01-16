@@ -39,7 +39,7 @@ func renderHoconValue(v *hocon.HoconValue) interface{} {
 	}
 }
 
-func extractBuild(config *configuration.Config) (*Build, error) {
+func applyPatch(container *gabs.Container, config *configuration.Config) (*Build, error) {
 	b := new(Build)
 
 	b.Image = gabs.New()
