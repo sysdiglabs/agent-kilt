@@ -26,9 +26,9 @@ func readInput(path string) *TargetInfo {
 	info.ContainerGroupName = toStringOrEmpty(gabsInfo.S("container_group_name").Data())
 	info.EntryPoint = gabsInfo.S("entry_point")
 	info.Command = gabsInfo.S("command")
-	info.EnvironmentVariables = make(map[string]string)
+	info.EnvironmentVariables = make(map[string]*gabs.Container)
 	for k, v := range gabsInfo.S("environment_variables").ChildrenMap() {
-		info.EnvironmentVariables[k] = v.Data().(string)
+		info.EnvironmentVariables[k] = v
 	}
 	return info
 }
@@ -42,7 +42,7 @@ func TestSimpleBuild(t *testing.T) {
 
 	assert.Equal(t, "busybox:latest", toStringOrEmpty(b.Image.Data()))
 	assert.Equal(t, "/falco/pdig", b.EntryPoint.Children()[0].Data())
-	assert.Equal(t, "true", b.EnvironmentVariables["TEST"])
+	assert.Equal(t, "true", toStringOrEmpty(b.EnvironmentVariables["TEST"].Data()))
 	assert.Equal(t, 1, len(b.Resources))
 }
 
@@ -54,5 +54,5 @@ func TestEnvironmentVariables(t *testing.T) {
 	b, _ := k.Build(info)
 
 	assert.Containsf(t, b.EnvironmentVariables, "PREEXISTING", "does not contain preexisting vars")
-	assert.Equal(t, "true", b.EnvironmentVariables["PREEXISTING"])
+	assert.Equal(t, "true", toStringOrEmpty(b.EnvironmentVariables["PREEXISTING"].Data()))
 }

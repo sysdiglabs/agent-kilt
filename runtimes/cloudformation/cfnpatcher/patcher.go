@@ -108,16 +108,10 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 					keyValue := make(map[string]interface{})
 					keyValue["Name"] = k
 
-					if _, ok := info.EnvironmentVariables[k]; !ok && configuration.ParameterizeEnvars {
-						parameterRef := gabs.Container{}
-						parameterRef.Set(getParameterName(k), "Ref")
-						keyValue["Value"] = &parameterRef
+					if configuration.ParameterizeEnvars && !v.Exists("Ref") {
+						keyValue["Value"] = map[string]interface{}{"Ref": getParameterName(k)}
 					} else {
 						keyValue["Value"] = v
-					}
-
-					if v == info.TargetInfo.EnvironmentVariables[k] && info.EnvironmentVariables[k] != nil {
-						keyValue["Value"] = info.EnvironmentVariables[k]
 					}
 
 					appendResource.EnvironmentVariables = append(appendResource.EnvironmentVariables, keyValue)
@@ -194,17 +188,11 @@ func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Containe
 	for _, k := range keys {
 		keyValue := make(map[string]interface{})
 		keyValue["Name"] = k
-
 		v := patch.EnvironmentVariables[k]
-
-		if _, ok := cfnInfo.EnvironmentVariables[k]; !ok && configuration.ParameterizeEnvars {
-			keyValue["Value"] = map[string]string{"Ref": getParameterName(k)}
+		if configuration.ParameterizeEnvars && !v.Exists("Ref") {
+			keyValue["Value"] = map[string]interface{}{"Ref": getParameterName(k)}
 		} else {
 			keyValue["Value"] = v
-		}
-
-		if v == cfnInfo.TargetInfo.EnvironmentVariables[k] && cfnInfo.EnvironmentVariables[k] != nil {
-			keyValue["Value"] = cfnInfo.EnvironmentVariables[k]
 		}
 
 		_, err = container.Set(keyValue, "Environment", "-")
