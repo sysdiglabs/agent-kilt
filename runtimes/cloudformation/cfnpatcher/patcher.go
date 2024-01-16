@@ -130,13 +130,8 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Container, patch *kilt.Build, configuration *Configuration) error {
 	l := log.Ctx(ctx)
 
-	_, err := container.Set(patch.Command, "Command")
-	if err != nil {
-		return fmt.Errorf("could not set Command: %w", err)
-	}
-
 	if !container.Exists("VolumesFrom") {
-		_, err = container.Set([]interface{}{}, "VolumesFrom")
+		_, err := container.Set([]interface{}{}, "VolumesFrom")
 		if err != nil {
 			return fmt.Errorf("could not set VolumesFrom: %w", err)
 		}
@@ -153,7 +148,7 @@ func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Containe
 			"SourceContainer": newContainer.Name,
 		}
 
-		_, err = container.Set(addVolume, "VolumesFrom", "-")
+		_, err := container.Set(addVolume, "VolumesFrom", "-")
 		if err != nil {
 			return fmt.Errorf("could not add VolumesFrom directive: %w", err)
 		}
@@ -170,7 +165,7 @@ func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Containe
 			finalEnvironment[k] = kv.S("Value")
 			originalVars[k] = struct{}{}
 		}
-		_, err = container.Set([]interface{}{}, "Environment")
+		_, err := container.Set([]interface{}{}, "Environment")
 
 		if err != nil {
 			return fmt.Errorf("could not add environment variable container: %w", err)
@@ -194,7 +189,7 @@ func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Containe
 			keyValue["Name"] = k
 			keyValue["Value"] = finalEnvironment[k].Data()
 
-			_, err = container.Set(keyValue, "Environment", "-")
+			_, err := container.Set(keyValue, "Environment", "-")
 
 			if err != nil {
 				return fmt.Errorf("could not add environment variable %v: %w", keyValue, err)
@@ -210,7 +205,7 @@ func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Containe
 		// We need to add capabilities to the container
 		if !container.Exists("LinuxParameters") {
 			emptyMap := make(map[string]interface{})
-			_, err = container.Set(emptyMap, "LinuxParameters")
+			_, err := container.Set(emptyMap, "LinuxParameters")
 			if err != nil {
 				return fmt.Errorf("could not add LinuxParameters: %w", err)
 			}
@@ -218,7 +213,7 @@ func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Containe
 
 		if !container.Exists("LinuxParameters", "Capabilities") {
 			emptyMap := make(map[string]interface{})
-			_, err = container.Set(emptyMap, "LinuxParameters", "Capabilities")
+			_, err := container.Set(emptyMap, "LinuxParameters", "Capabilities")
 			if err != nil {
 				return fmt.Errorf("could not add LinuxParameters.Capabilities: %w", err)
 			}
@@ -226,7 +221,7 @@ func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Containe
 
 		if !container.Exists("LinuxParameters", "Capabilities", "Add") {
 			emptyList := make([]interface{}, 0)
-			_, err = container.Set(emptyList, "LinuxParameters", "Capabilities", "Add")
+			_, err := container.Set(emptyList, "LinuxParameters", "Capabilities", "Add")
 			if err != nil {
 				return fmt.Errorf("could not add LinuxParameters.Capabilities.Add: %w", err)
 			}

@@ -20,7 +20,6 @@ type BuildResource struct {
 }
 
 type Build struct {
-	Command              *gabs.Container
 	EnvironmentVariables map[string]*gabs.Container
 	Capabilities         []string
 
