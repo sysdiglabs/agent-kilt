@@ -15,7 +15,6 @@ type TemplateInfo struct {
 	// Containers are not null when template values are complex
 	Name                 *gabs.Container
 	Image                *gabs.Container
-	EntryPoint           []*gabs.Container
 	EnvironmentVariables map[string]*gabs.Container
 }
 
@@ -72,8 +71,8 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 			if configuration.UseRepositoryHints {
 				l.Info().Str("image", info.Image).Msgf("extracted info from remote repository: %+v", repoInfo)
 				if repoInfo.Entrypoint != nil {
-					info.EntryPoint = repoInfo.Entrypoint
-					cfnInfo.EntryPoint = make([]*gabs.Container, len(info.EntryPoint))
+					info.EntryPoint = gabs.New()
+					info.EntryPoint.Set(repoInfo.Entrypoint)
 				}
 				if repoInfo.Command != nil {
 					info.Command = gabs.New()
@@ -84,13 +83,8 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 	}
 
 	if container.Exists("EntryPoint") {
-		info.EntryPoint = make([]string, 0)
-		cfnInfo.EntryPoint = make([]*gabs.Container, 0)
-		for _, arg := range container.S("EntryPoint").Children() {
-			passthrough, templateVal := GetValueFromTemplate(arg)
-			cfnInfo.EntryPoint = append(cfnInfo.EntryPoint, templateVal)
-			info.EntryPoint = append(info.EntryPoint, passthrough)
-		}
+		info.EntryPoint = gabs.New()
+		info.EntryPoint.Set(container.S("EntryPoint").Children())
 	} else {
 		l.Warn().Str("image", info.Image).Msg("no EntryPoint was specified")
 	}

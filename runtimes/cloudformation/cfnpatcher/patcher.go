@@ -127,23 +127,6 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 	return resource, nil
 }
 
-func postPatchReplace(patched []string, original []string, parallel []*gabs.Container) []*gabs.Container {
-	value := make([]*gabs.Container, 0)
-	originalLen := len(original)
-	for i, j := 0, 0; i < len(patched); i++ {
-		toAssign := gabs.New()
-		toAssign, _ = toAssign.Set(patched[i])
-		if j < originalLen && patched[i] == original[j] {
-			if parallel[j] != nil {
-				toAssign = parallel[j]
-			}
-			j++
-		}
-		value = append(value, toAssign)
-	}
-	return value
-}
-
 func postPatchSelect(patched string, previous string, original *gabs.Container) interface{} {
 	if patched == previous && original != nil {
 		return original
@@ -154,9 +137,7 @@ func postPatchSelect(patched string, previous string, original *gabs.Container) 
 func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Container, patch *kilt.Build, cfnInfo *TemplateInfo, configuration *Configuration) error {
 	l := log.Ctx(ctx)
 
-	finalEntryPoint := postPatchReplace(patch.EntryPoint, cfnInfo.TargetInfo.EntryPoint, cfnInfo.EntryPoint)
-
-	_, err := container.Set(finalEntryPoint, "EntryPoint")
+	_, err := container.Set(patch.EntryPoint, "EntryPoint")
 	if err != nil {
 		return fmt.Errorf("could not set EntryPoint: %w", err)
 	}

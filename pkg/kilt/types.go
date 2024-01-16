@@ -6,7 +6,7 @@ type TargetInfo struct {
 	Image                string            `json:"image"`
 	ContainerName        string            `json:"container_name"`
 	ContainerGroupName   string            `json:"container_group_name"`
-	EntryPoint           []string          `json:"entry_point"`
+	EntryPoint           *gabs.Container   `json:"entry_point"`
 	Command              *gabs.Container   `json:"command"`
 	EnvironmentVariables map[string]string `json:"environment_variables"`
 }
@@ -21,7 +21,7 @@ type BuildResource struct {
 
 type Build struct {
 	Image                string
-	EntryPoint           []string
+	EntryPoint           *gabs.Container
 	Command              *gabs.Container
 	EnvironmentVariables map[string]string
 	Capabilities         []string
