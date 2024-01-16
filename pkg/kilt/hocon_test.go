@@ -21,7 +21,7 @@ func readInput(path string) *TargetInfo {
 	targetInfoString, _ := os.ReadFile(path)
 	gabsInfo, _ := gabs.ParseJSON(targetInfoString)
 	info := new(TargetInfo)
-	info.Image = toStringOrEmpty(gabsInfo.S("image").Data())
+	info.Image = gabsInfo.S("image")
 	info.ContainerName = gabsInfo.S("container_name")
 	info.ContainerGroupName = toStringOrEmpty(gabsInfo.S("container_group_name").Data())
 	info.EntryPoint = gabsInfo.S("entry_point")
@@ -40,7 +40,7 @@ func TestSimpleBuild(t *testing.T) {
 	k := NewKiltHocon(string(definitionString))
 	b, _ := k.Build(info)
 
-	assert.Equal(t, "busybox:latest", b.Image)
+	assert.Equal(t, "busybox:latest", toStringOrEmpty(b.Image.Data()))
 	assert.Equal(t, "/falco/pdig", b.EntryPoint.Children()[0].Data())
 	assert.Equal(t, "true", b.EnvironmentVariables["TEST"])
 	assert.Equal(t, 1, len(b.Resources))
