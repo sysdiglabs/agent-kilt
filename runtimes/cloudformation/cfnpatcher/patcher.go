@@ -21,8 +21,17 @@ func containerInConfig(name string, listOfNames []string) bool {
 }
 
 func shouldSkip(info *kilt.TargetInfo, configuration *Configuration, hints *InstrumentationHints) bool {
-	isForceIncluded := containerInConfig(info.ContainerName, hints.IncludeContainersNamed)
-	isExcluded := containerInConfig(info.ContainerName, hints.IgnoreContainersNamed)
+	containerNameData := info.ContainerName.Data()
+	var containerName string
+	switch containerNameData.(type) {
+	case string:
+		containerName = containerNameData.(string)
+	default:
+		containerName = info.ContainerName.String()
+	}
+
+	isForceIncluded := containerInConfig(containerName, hints.IncludeContainersNamed)
+	isExcluded := containerInConfig(containerName, hints.IgnoreContainersNamed)
 
 	return (configuration.OptIn && !isForceIncluded && !hints.HasGlobalInclude) || (!configuration.OptIn && isExcluded)
 }
