@@ -20,8 +20,6 @@ type BuildResource struct {
 }
 
 type Build struct {
-	Image                *gabs.Container
-	EntryPoint           *gabs.Container
 	Command              *gabs.Container
 	EnvironmentVariables map[string]*gabs.Container
 	Capabilities         []string
