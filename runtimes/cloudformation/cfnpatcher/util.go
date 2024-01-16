@@ -2,7 +2,6 @@ package cfnpatcher
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 
@@ -45,9 +44,4 @@ func getOptTags(template *gabs.Container) map[string]string {
 		}
 	}
 	return optTags
-}
-
-func exitErrorf(msg string, args ...interface{}) {
-	_, _ = fmt.Fprintf(os.Stderr, msg+"\n", args...)
-	os.Exit(1)
 }
