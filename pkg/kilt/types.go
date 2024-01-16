@@ -3,7 +3,7 @@ package kilt
 import "github.com/Jeffail/gabs/v2"
 
 type TargetInfo struct {
-	Image                string            `json:"image"`
+	Image                *gabs.Container   `json:"image"`
 	ContainerName        *gabs.Container   `json:"container_name"`
 	ContainerGroupName   string            `json:"container_group_name"`
 	EntryPoint           *gabs.Container   `json:"entry_point"`
@@ -20,7 +20,7 @@ type BuildResource struct {
 }
 
 type Build struct {
-	Image                string
+	Image                *gabs.Container
 	EntryPoint           *gabs.Container
 	Command              *gabs.Container
 	EnvironmentVariables map[string]string

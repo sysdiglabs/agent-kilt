@@ -136,13 +136,6 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 	return resource, nil
 }
 
-func postPatchSelect(patched string, previous string, original *gabs.Container) interface{} {
-	if patched == previous && original != nil {
-		return original
-	}
-	return patched
-}
-
 func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Container, patch *kilt.Build, cfnInfo *TemplateInfo, configuration *Configuration) error {
 	l := log.Ctx(ctx)
 
@@ -155,7 +148,7 @@ func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Containe
 		return fmt.Errorf("could not set Command: %w", err)
 	}
 
-	_, err = container.Set(postPatchSelect(patch.Image, cfnInfo.TargetInfo.Image, cfnInfo.Image), "Image")
+	_, err = container.Set(patch.Image, "Image")
 	if err != nil {
 		return fmt.Errorf("could not set Command: %w", err)
 	}
