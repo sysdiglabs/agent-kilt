@@ -76,17 +76,17 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 	if resource.Exists("Properties", "ContainerDefinitions") {
 		for _, container := range resource.S("Properties", "ContainerDefinitions").Children() {
 			info := extractContainerInfo(ctx, resource, name, container, parameters, configuration)
-			l.Info().Msgf("extracted info for container: %+v %+v", info.TargetInfo, info)
-			if shouldSkip(info.TargetInfo, configuration, hints) {
+			l.Info().Msgf("extracted info for container: %+v", info)
+			if shouldSkip(info, configuration, hints) {
 				l.Info().Msgf("skipping container due to hints in tags")
 				continue
 			}
-			patch, err := k.Build(info.TargetInfo)
+			patch, err := k.Build(info)
 			if err != nil {
 				return nil, fmt.Errorf("could not construct kilt patch: %w", err)
 			}
 			l.Info().Msgf("created patch for container: %v", patch)
-			err = applyContainerDefinitionPatch(l.WithContext(ctx), container, patch, info, configuration)
+			err = applyContainerDefinitionPatch(l.WithContext(ctx), container, patch, configuration)
 			if err != nil {
 				l.Warn().Str("resource", name).Err(err).Msg("skipped patching container in task definition")
 			} else {
@@ -130,7 +130,7 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 	return resource, nil
 }
 
-func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Container, patch *kilt.Build, cfnInfo *TemplateInfo, configuration *Configuration) error {
+func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Container, patch *kilt.Build, configuration *Configuration) error {
 	l := log.Ctx(ctx)
 
 	_, err := container.Set(patch.EntryPoint, "EntryPoint")
