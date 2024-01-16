@@ -13,7 +13,6 @@ import (
 type TemplateInfo struct {
 	TargetInfo *kilt.TargetInfo
 	// Containers are not null when template values are complex
-	Name                 *gabs.Container
 	Image                *gabs.Container
 	EnvironmentVariables map[string]*gabs.Container
 }
@@ -39,7 +38,7 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 	cfnInfo.TargetInfo = info
 	l := log.Ctx(ctx)
 
-	info.ContainerName, cfnInfo.Name = GetValueFromTemplate(container.S("Name"))
+	info.ContainerName = container.S("Name")
 	info.ContainerGroupName = groupName
 	info.EnvironmentVariables = make(map[string]string)
 	cfnInfo.EnvironmentVariables = make(map[string]*gabs.Container)

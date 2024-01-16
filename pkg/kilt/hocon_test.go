@@ -22,7 +22,7 @@ func readInput(path string) *TargetInfo {
 	gabsInfo, _ := gabs.ParseJSON(targetInfoString)
 	info := new(TargetInfo)
 	info.Image = toStringOrEmpty(gabsInfo.S("image").Data())
-	info.ContainerName = toStringOrEmpty(gabsInfo.S("container_name").Data())
+	info.ContainerName = gabsInfo.S("container_name")
 	info.ContainerGroupName = toStringOrEmpty(gabsInfo.S("container_group_name").Data())
 	info.EntryPoint = gabsInfo.S("entry_point")
 	info.Command = gabsInfo.S("command")
