@@ -60,13 +60,17 @@ func applyPatch(container *gabs.Container, config *configuration.Config) (*Build
 		return nil, fmt.Errorf("could not set entry point: %w", err)
 	}
 
-	b.Command = gabs.New()
-	b.Command.Set(make([]interface{}, 0))
+	command := gabs.New()
+	command.Set(make([]interface{}, 0))
 	rawCommand := config.GetValue("build.command").GetArray()
 	if rawCommand != nil {
 		for _, c := range rawCommand {
-			b.Command.ArrayAppend(renderHoconValue(c))
+			command.ArrayAppend(renderHoconValue(c))
 		}
+	}
+	_, err = container.Set(command, "Command")
+	if err != nil {
+		return nil, fmt.Errorf("could not set command: %w", err)
 	}
 
 	b.Capabilities = config.GetStringList("build.capabilities")
