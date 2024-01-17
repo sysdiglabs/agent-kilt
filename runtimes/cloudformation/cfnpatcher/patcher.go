@@ -96,12 +96,7 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 				return nil, fmt.Errorf("could not construct kilt patch: %w", err)
 			}
 			l.Info().Msgf("created patch for container: %v", patch)
-			err = applyContainerDefinitionPatch(l.WithContext(ctx), container, patch, configuration)
-			if err != nil {
-				l.Warn().Str("resource", name).Err(err).Msg("skipped patching container in task definition")
-			} else {
-				successes += 1
-			}
+			successes += 1
 
 			for _, appendResource := range patch.Resources {
 				containers[appendResource.Name] = appendResource
@@ -116,36 +111,6 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 		return resource, fmt.Errorf("could not patch a single container in the task")
 	}
 	return resource, nil
-}
-
-func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Container, patch *kilt.Build, configuration *Configuration) error {
-	l := log.Ctx(ctx)
-
-	if !container.Exists("VolumesFrom") {
-		_, err := container.Set([]interface{}{}, "VolumesFrom")
-		if err != nil {
-			return fmt.Errorf("could not set VolumesFrom: %w", err)
-		}
-	}
-
-	for _, newContainer := range patch.Resources {
-		// Skip containers with no volumes - just injecting sidecars
-		if len(newContainer.Volumes) == 0 {
-			l.Info().Msgf("Skipping injection of %s because it has no volumes specified", newContainer.Name)
-			continue
-		}
-		addVolume := map[string]interface{}{
-			"ReadOnly":        true,
-			"SourceContainer": newContainer.Name,
-		}
-
-		_, err := container.Set(addVolume, "VolumesFrom", "-")
-		if err != nil {
-			return fmt.Errorf("could not add VolumesFrom directive: %w", err)
-		}
-	}
-
-	return nil
 }
 
 func appendContainers(resource *gabs.Container, containers map[string]kilt.BuildResource, imageAuth string, logGroup string, name string) error {

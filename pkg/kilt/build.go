@@ -196,6 +196,18 @@ func applyPatch(container *gabs.Container, config *configuration.Config, patchCo
 					EntryPoint: mount.GetKey("entry_point").GetStringList(),
 				}
 
+				if len(resource.Volumes) != 0 {
+					addVolume := map[string]interface{}{
+						"ReadOnly":        true,
+						"SourceContainer": resource.Name,
+					}
+
+					err := container.ArrayAppend(addVolume, "VolumesFrom")
+					if err != nil {
+						return nil, fmt.Errorf("could not add VolumesFrom directive: %w", err)
+					}
+				}
+
 				sidecarEnv := mount.GetKey("environment_variables")
 				sidecarEnvKv := make([]interface{}, 0)
 				if sidecarEnv != nil && sidecarEnv.IsObject() {
