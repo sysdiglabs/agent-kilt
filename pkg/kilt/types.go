@@ -5,7 +5,6 @@ import "github.com/Jeffail/gabs/v2"
 type TargetInfo struct {
 	Image                *gabs.Container              `json:"image"`
 	ContainerName        *gabs.Container              `json:"container_name"`
-	ContainerGroupName   string                       `json:"container_group_name"`
 	EntryPoint           *gabs.Container              `json:"entry_point"`
 	Command              *gabs.Container              `json:"command"`
 	EnvironmentVariables []map[string]*gabs.Container `json:"environment_variables"`
