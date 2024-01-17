@@ -145,42 +145,6 @@ func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Containe
 		}
 	}
 
-	if len(patch.Capabilities) > 0 {
-		capabilities := make([]interface{}, len(patch.Capabilities))
-		for i, v := range patch.Capabilities {
-			capabilities[i] = v
-		}
-		// We need to add capabilities to the container
-		if !container.Exists("LinuxParameters") {
-			emptyMap := make(map[string]interface{})
-			_, err := container.Set(emptyMap, "LinuxParameters")
-			if err != nil {
-				return fmt.Errorf("could not add LinuxParameters: %w", err)
-			}
-		}
-
-		if !container.Exists("LinuxParameters", "Capabilities") {
-			emptyMap := make(map[string]interface{})
-			_, err := container.Set(emptyMap, "LinuxParameters", "Capabilities")
-			if err != nil {
-				return fmt.Errorf("could not add LinuxParameters.Capabilities: %w", err)
-			}
-		}
-
-		if !container.Exists("LinuxParameters", "Capabilities", "Add") {
-			emptyList := make([]interface{}, 0)
-			_, err := container.Set(emptyList, "LinuxParameters", "Capabilities", "Add")
-			if err != nil {
-				return fmt.Errorf("could not add LinuxParameters.Capabilities.Add: %w", err)
-			}
-		}
-
-		err := container.ArrayConcat(capabilities, "LinuxParameters", "Capabilities", "Add")
-		if err != nil {
-			return fmt.Errorf("could not append to LinuxParameters.Capabilities.Add: %w", err)
-		}
-	}
-
 	return nil
 }
 
