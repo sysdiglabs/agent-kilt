@@ -17,13 +17,13 @@ func toStringOrEmpty(c interface{}) string {
 	}
 }
 
-func readInput(path string) *TargetInfo {
+func readInput(path string) (*TargetInfo, string) {
 	targetInfoString, _ := os.ReadFile(path)
 	gabsInfo, _ := gabs.ParseJSON(targetInfoString)
 	info := new(TargetInfo)
 	info.Image = gabsInfo.S("image")
 	info.ContainerName = gabsInfo.S("container_name")
-	info.ContainerGroupName = toStringOrEmpty(gabsInfo.S("container_group_name").Data())
+	containerGroupName := toStringOrEmpty(gabsInfo.S("container_group_name").Data())
 	info.EntryPoint = gabsInfo.S("entry_point")
 	info.Command = gabsInfo.S("command")
 	info.EnvironmentVariables = make([]map[string]*gabs.Container, 0)
@@ -33,7 +33,7 @@ func readInput(path string) *TargetInfo {
 		env["Value"] = v
 		info.EnvironmentVariables = append(info.EnvironmentVariables, env)
 	}
-	return info
+	return info, containerGroupName
 }
 
 func getEnvByName(container *gabs.Container, name string) *string {
@@ -47,12 +47,12 @@ func getEnvByName(container *gabs.Container, name string) *string {
 }
 
 func TestSimpleBuild(t *testing.T) {
-	info := readInput("./fixtures/input.json")
+	info, groupName := readInput("./fixtures/input.json")
 	definitionString, _ := os.ReadFile("./fixtures/kilt.cfg")
 
 	k := NewKiltHocon(string(definitionString))
 	container := gabs.New()
-	b, _ := k.Patch(container, &PatchConfig{}, info)
+	b, _ := k.Patch(container, &PatchConfig{}, info, groupName)
 
 	assert.Equal(t, "busybox:latest", toStringOrEmpty(container.S("Image").Data()))
 	assert.Equal(t, "/falco/pdig", toStringOrEmpty(container.S("EntryPoint").Children()[0].Data()))
@@ -61,12 +61,12 @@ func TestSimpleBuild(t *testing.T) {
 }
 
 func TestEnvironmentVariables(t *testing.T) {
-	info := readInput("./fixtures/env_vars_input.json")
+	info, groupName := readInput("./fixtures/env_vars_input.json")
 	definitionString, _ := os.ReadFile("./fixtures/kilt_env_vars.cfg")
 
 	k := NewKiltHocon(string(definitionString))
 	container := gabs.New()
-	k.Patch(container, &PatchConfig{}, info)
+	k.Patch(container, &PatchConfig{}, info, groupName)
 
 	assert.Equal(t, "true", *getEnvByName(container, "PREEXISTING"))
 }

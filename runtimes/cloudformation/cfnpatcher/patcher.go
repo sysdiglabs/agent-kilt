@@ -42,7 +42,7 @@ func applyParametersPatch(ctx context.Context, template *gabs.Container, configu
 	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig)
 	container := gabs.New()
 	container.Set(make(map[string]interface{}))
-	build, _ := k.Patch(container, &patchConfig, new(kilt.TargetInfo))
+	build, _ := k.Patch(container, &patchConfig, new(kilt.TargetInfo), "")
 
 	parameters := build.EnvParameters
 	if parameters == nil {
@@ -91,7 +91,7 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 				l.Info().Msgf("skipping container due to hints in tags")
 				continue
 			}
-			patch, err := k.Patch(container, &patchConfig, info)
+			patch, err := k.Patch(container, &patchConfig, info, name)
 			if err != nil {
 				return nil, fmt.Errorf("could not construct kilt patch: %w", err)
 			}

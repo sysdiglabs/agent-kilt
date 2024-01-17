@@ -33,7 +33,7 @@ func NewKiltHoconWithConfig(definition string, recipeConfig string) *KiltHocon {
 	return h
 }
 
-func (k *KiltHocon) prepareFullStringConfig(info *TargetInfo) (*configuration.Config, error) {
+func (k *KiltHocon) prepareFullStringConfig(info *TargetInfo, groupName string) (*configuration.Config, error) {
 	rawVars := ""
 
 	jsonDoc, err := json.Marshal(info.Image)
@@ -48,7 +48,7 @@ func (k *KiltHocon) prepareFullStringConfig(info *TargetInfo) (*configuration.Co
 	}
 	rawVars += "original.container_name:" + string(jsonDoc) + "\n"
 
-	jsonDoc, err = json.Marshal(info.ContainerGroupName)
+	jsonDoc, err = json.Marshal(groupName)
 	if err != nil {
 		return nil, fmt.Errorf("could not serialize container group name: %w", err)
 	}
@@ -84,8 +84,8 @@ func (k *KiltHocon) prepareFullStringConfig(info *TargetInfo) (*configuration.Co
 	return configuration.ParseString(configString), nil
 }
 
-func (k *KiltHocon) Patch(container *gabs.Container, patchConfig *PatchConfig, info *TargetInfo) (*Build, error) {
-	config, err := k.prepareFullStringConfig(info)
+func (k *KiltHocon) Patch(container *gabs.Container, patchConfig *PatchConfig, info *TargetInfo, groupName string) (*Build, error) {
+	config, err := k.prepareFullStringConfig(info, groupName)
 	if err != nil {
 		return nil, fmt.Errorf("could not assemble full config: %w", err)
 	}
@@ -94,7 +94,7 @@ func (k *KiltHocon) Patch(container *gabs.Container, patchConfig *PatchConfig, i
 }
 
 func (k *KiltHocon) Task() (*Task, error) {
-	config, err := k.prepareFullStringConfig(&TargetInfo{})
+	config, err := k.prepareFullStringConfig(&TargetInfo{}, "")
 	if err != nil {
 		return nil, fmt.Errorf("could not assemble full config: %w", err)
 	}

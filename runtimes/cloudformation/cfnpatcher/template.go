@@ -15,7 +15,6 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 	l := log.Ctx(ctx)
 
 	info.ContainerName = container.S("Name")
-	info.ContainerGroupName = groupName
 
 	if container.Exists("Image") {
 		info.Image = container.S("Image")
