@@ -16,7 +16,6 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 
 	info.ContainerName = container.S("Name")
 	info.ContainerGroupName = groupName
-	info.EnvironmentVariables = make(map[string]*gabs.Container)
 
 	if container.Exists("Image") {
 		info.Image = container.S("Image")
@@ -73,14 +72,10 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 		l.Warn().Str("image", info.Image.String()).Msg("no Command was specified")
 	}
 
+	info.EnvironmentVariables = make([]map[string]*gabs.Container, 0)
 	if container.Exists("Environment") {
 		for _, env := range container.S("Environment").Children() {
-			k, ok := env.S("Name").Data().(string)
-			if !ok {
-				l.Fatal().Str("Fragment", env.S("Name").String()).Str("TaskDefinition", groupName).Msg("Environment has an unsupported value type. Expected string")
-			}
-
-			info.EnvironmentVariables[k] = env.S("Value")
+			info.EnvironmentVariables = append(info.EnvironmentVariables, env.ChildrenMap())
 		}
 	}
 

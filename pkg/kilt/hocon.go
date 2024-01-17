@@ -66,7 +66,11 @@ func (k *KiltHocon) prepareFullStringConfig(info *TargetInfo) (*configuration.Co
 	}
 	rawVars += "original.command:" + string(jsonDoc) + "\n"
 
-	jsonDoc, err = json.Marshal(info.EnvironmentVariables)
+	rawEnvMap := make(map[string]interface{})
+	for _, env := range info.EnvironmentVariables {
+		rawEnvMap[env["Name"].Data().(string)] = env["Value"]
+	}
+	jsonDoc, err = json.Marshal(rawEnvMap)
 	if err != nil {
 		return nil, fmt.Errorf("could not serialize container environment variables: %w", err)
 	}
