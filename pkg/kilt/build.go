@@ -156,9 +156,14 @@ func applyPatch(container *gabs.Container, config *configuration.Config, patchCo
 		return nil, fmt.Errorf("could not set command: %w", err)
 	}
 
-	b.Capabilities = config.GetStringList("build.capabilities")
-	if b.Capabilities == nil {
-		b.Capabilities = make([]string, 0)
+	capabilities := config.GetStringList("build.capabilities")
+	if capabilities != nil {
+		for _, c := range capabilities {
+			err = container.ArrayAppend(c, "LinuxParameters", "Capabilities", "Add")
+			if err != nil {
+				return nil, fmt.Errorf("could not append to LinuxParameters.Capabilities.Add: %w", err)
+			}
+		}
 	}
 
 	env := config.GetValue("build.environment_variables")

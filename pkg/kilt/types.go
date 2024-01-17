@@ -21,9 +21,7 @@ type BuildResource struct {
 
 type Build struct {
 	EnvParameters *gabs.Container
-	Capabilities  []string
-
-	Resources []BuildResource
+	Resources     []BuildResource
 }
 
 type Task struct {
