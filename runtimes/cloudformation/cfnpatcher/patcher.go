@@ -40,16 +40,15 @@ func applyParametersPatch(ctx context.Context, template *gabs.Container, configu
 	}
 
 	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig, nil)
-	container := gabs.New()
-	container.Set(make(map[string]interface{}))
-	build, _ := k.Patch(container, &patchConfig, "")
-
-	parameters := build.EnvParameters
+	parameters, err := k.GetParameters(&patchConfig)
+	if err != nil {
+		return nil, err
+	}
 	if parameters == nil {
 		return template, nil
 	}
 
-	template.Merge(build.EnvParameters)
+	template.Merge(parameters)
 	return template, nil
 }
 
