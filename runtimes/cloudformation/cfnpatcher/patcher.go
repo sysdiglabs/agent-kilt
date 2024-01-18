@@ -56,8 +56,6 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 		return nil, fmt.Errorf("could not apply sidecar configuration: %w", err)
 	}
 
-	successes := 0
-	containers := make(map[string]*gabs.Container)
 	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig, sidecarConfig)
 
 	err = k.PatchTaskDefinition(resource)
@@ -69,35 +67,22 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 		ParametrizeEnvars: configuration.ParameterizeEnvars,
 	}
 
-	if resource.Exists("Properties", "ContainerDefinitions") {
-		for _, container := range resource.S("Properties", "ContainerDefinitions").Children() {
+	containerDefinitions := resource.S("Properties", "ContainerDefinitions")
+	if containerDefinitions != nil {
+		err := k.PatchContainerDefinitions(containerDefinitions, &patchConfig, name, func(container *gabs.Container) bool {
 			if shouldSkip(container, configuration, hints) {
 				l.Info().Msgf("skipping container due to hints in tags")
-				continue
+				return false
 			}
 
 			fillContainerInfo(ctx, container, parameters, configuration)
-
-			patch, err := k.PatchContainerDefinition(container, &patchConfig, name)
-			if err != nil {
-				return nil, fmt.Errorf("could not construct kilt patch: %w", err)
-			}
-			l.Info().Msgf("created patch for container: %v", patch)
-			successes += 1
-
-			for name, sidecar := range patch.Sidecars {
-				containers[name] = sidecar
-			}
+			return true
+		})
+		if err != nil {
+			return resource, err
 		}
-		for sidecarName, sidecar := range containers {
-			_, err := resource.Set(sidecar, "Properties", "ContainerDefinitions", "-")
-			if err != nil {
-				return nil, fmt.Errorf("could not inject %s: %w", sidecarName, err)
-			}
-		}
-	}
-	if successes == 0 {
-		return resource, fmt.Errorf("could not patch a single container in the task")
+
+		resource.Set(containerDefinitions, "Properties", "ContainerDefinitions")
 	}
 	return resource, nil
 }

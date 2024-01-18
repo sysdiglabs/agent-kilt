@@ -95,13 +95,33 @@ func (k *KiltHocon) prepareFullStringConfig(container *gabs.Container, groupName
 	return configuration.ParseString(configString), nil
 }
 
-func (k *KiltHocon) PatchContainerDefinition(container *gabs.Container, patchConfig *PatchConfig, groupName string) (*Build, error) {
-	config, err := k.prepareFullStringConfig(container, groupName)
-	if err != nil {
-		return nil, fmt.Errorf("could not assemble full config: %w", err)
+func (k *KiltHocon) PatchContainerDefinitions(containers *gabs.Container, patchConfig *PatchConfig, groupName string, filter func(container *gabs.Container) bool) error {
+	sidecars := make(map[string]*gabs.Container)
+
+	for _, container := range containers.Children() {
+		if filter(container) {
+			config, err := k.prepareFullStringConfig(container, groupName)
+			if err != nil {
+				return fmt.Errorf("could not assemble full config: %w", err)
+			}
+			build, err := applyPatch(container, config, patchConfig)
+			if err != nil {
+				return fmt.Errorf("could not patch container definition %v: %w", container, err)
+			}
+
+			for name, sidecar := range build.Sidecars {
+				sidecars[name] = sidecar
+			}
+		}
 	}
 
-	return applyPatch(container, config, patchConfig)
+	for sidecarName, sidecar := range sidecars {
+		err := containers.ArrayAppend(sidecar)
+		if err != nil {
+			return fmt.Errorf("could not inject %s: %w", sidecarName, err)
+		}
+	}
+	return nil
 }
 
 func (k *KiltHocon) PatchCfnTemplate(template *gabs.Container, patchConfig *PatchConfig) error {

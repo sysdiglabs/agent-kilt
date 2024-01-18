@@ -32,7 +32,13 @@ func readInput(path string) (*gabs.Container, string) {
 		env["Value"] = v.Data()
 		container.ArrayAppend(env, "Environment")
 	}
-	return container, containerGroupName
+	containers := gabs.Wrap(make([]interface{}, 0))
+	err := containers.ArrayAppend(container.Data())
+	if err != nil {
+		panic(err)
+	}
+
+	return containers, containerGroupName
 }
 
 func getEnvByName(container *gabs.Container, name string) *string {
@@ -45,25 +51,38 @@ func getEnvByName(container *gabs.Container, name string) *string {
 	return nil
 }
 
+func yes(container *gabs.Container) bool {
+	return true
+}
+
 func TestSimpleBuild(t *testing.T) {
-	container, groupName := readInput("./fixtures/input.json")
+	containers, groupName := readInput("./fixtures/input.json")
 	definitionString, _ := os.ReadFile("./fixtures/kilt.cfg")
 
 	k := NewKiltHocon(string(definitionString))
-	b, _ := k.PatchContainerDefinition(container, &PatchConfig{}, groupName)
+	err := k.PatchContainerDefinitions(containers, &PatchConfig{}, groupName, yes)
+	if err != nil {
+		panic(err)
+	}
+	container := containers.S("0")
 
 	assert.Equal(t, "busybox:latest", toStringOrEmpty(container.S("Image").Data()))
 	assert.Equal(t, "/falco/pdig", toStringOrEmpty(container.S("EntryPoint").Children()[0].Data()))
 	assert.Equal(t, "true", *getEnvByName(container, "TEST"))
-	assert.Equal(t, 1, len(b.Sidecars))
+	numContainers, _ := containers.ArrayCount()
+	assert.Equal(t, 2, numContainers)
 }
 
 func TestEnvironmentVariables(t *testing.T) {
-	container, groupName := readInput("./fixtures/env_vars_input.json")
+	containers, groupName := readInput("./fixtures/env_vars_input.json")
 	definitionString, _ := os.ReadFile("./fixtures/kilt_env_vars.cfg")
 
 	k := NewKiltHocon(string(definitionString))
-	k.PatchContainerDefinition(container, &PatchConfig{}, groupName)
+	err := k.PatchContainerDefinitions(containers, &PatchConfig{}, groupName, yes)
+	if err != nil {
+		panic(err)
+	}
 
+	container := containers.S("0")
 	assert.Equal(t, "true", *getEnvByName(container, "PREEXISTING"))
 }
