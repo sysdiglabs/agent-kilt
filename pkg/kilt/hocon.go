@@ -104,12 +104,12 @@ func (k *KiltHocon) patchContainerDefinitions(containers *gabs.Container, patchC
 			if err != nil {
 				return fmt.Errorf("could not assemble full config: %w", err)
 			}
-			build, err := applyPatch(container, config, patchConfig)
+			newSidecars, err := applyPatch(container, config, patchConfig)
 			if err != nil {
 				return fmt.Errorf("could not patch container definition %v: %w", container, err)
 			}
 
-			for name, sidecar := range build.Sidecars {
+			for name, sidecar := range newSidecars {
 				sidecars[name] = sidecar
 			}
 		}
