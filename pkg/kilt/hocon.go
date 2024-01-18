@@ -104,6 +104,16 @@ func (k *KiltHocon) Patch(container *gabs.Container, patchConfig *PatchConfig, g
 	return applyPatch(container, config, patchConfig)
 }
 
+func (k *KiltHocon) GetParameters(patchConfig *PatchConfig) (*gabs.Container, error) {
+	container := gabs.New()
+	container.Set(make(map[string]interface{}))
+	build, err := k.Patch(container, patchConfig, "")
+	if err != nil {
+		return nil, fmt.Errorf("could not get task parameter patch: %w", err)
+	}
+	return build.EnvParameters, nil
+}
+
 func (k *KiltHocon) Task() (*Task, error) {
 	container := gabs.New()
 	container.Set(make(map[string]interface{}))
