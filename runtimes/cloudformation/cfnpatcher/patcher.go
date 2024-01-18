@@ -18,14 +18,14 @@ func containerInConfig(name string, listOfNames []string) bool {
 	return false
 }
 
-func shouldSkip(info *kilt.TargetInfo, configuration *Configuration, hints *InstrumentationHints) bool {
-	containerNameData := info.ContainerName.Data()
+func shouldSkip(container *gabs.Container, configuration *Configuration, hints *InstrumentationHints) bool {
+	containerNameData := container.S("Name").Data()
 	var containerName string
 	switch containerNameData.(type) {
 	case string:
 		containerName = containerNameData.(string)
 	default:
-		containerName = info.ContainerName.String()
+		containerName = container.S("Name").String()
 	}
 
 	isForceIncluded := containerInConfig(containerName, hints.IncludeContainersNamed)
@@ -42,7 +42,7 @@ func applyParametersPatch(ctx context.Context, template *gabs.Container, configu
 	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig)
 	container := gabs.New()
 	container.Set(make(map[string]interface{}))
-	build, _ := k.Patch(container, &patchConfig, new(kilt.TargetInfo), "")
+	build, _ := k.Patch(container, &patchConfig, "")
 
 	parameters := build.EnvParameters
 	if parameters == nil {
@@ -85,13 +85,14 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 
 	if resource.Exists("Properties", "ContainerDefinitions") {
 		for _, container := range resource.S("Properties", "ContainerDefinitions").Children() {
-			info := extractContainerInfo(ctx, resource, name, container, parameters, configuration)
-			l.Info().Msgf("extracted info for container: %+v", info)
-			if shouldSkip(info, configuration, hints) {
+			if shouldSkip(container, configuration, hints) {
 				l.Info().Msgf("skipping container due to hints in tags")
 				continue
 			}
-			patch, err := k.Patch(container, &patchConfig, info, name)
+
+			fillContainerInfo(ctx, container, parameters, configuration)
+
+			patch, err := k.Patch(container, &patchConfig, name)
 			if err != nil {
 				return nil, fmt.Errorf("could not construct kilt patch: %w", err)
 			}
