@@ -34,13 +34,44 @@ func NewKiltHoconWithConfig(definition string, recipeConfig string) *KiltHocon {
 }
 
 func (k *KiltHocon) prepareFullStringConfig(info *TargetInfo) (*configuration.Config, error) {
-	rawVars, err := json.Marshal(info)
-	if err != nil {
-		return nil, fmt.Errorf("could not serialize info: %w", err)
-	}
-	rawEnv, _ := json.Marshal(info.EnvironmentVariables) // we would fail at info step
+	rawVars := ""
 
-	configString := "original:" + string(rawVars) + "\n" +
+	jsonDoc, err := json.Marshal(info.Image)
+	if err != nil {
+		return nil, fmt.Errorf("could not serialize container image: %w", err)
+	}
+	rawVars += "original.image:" + string(jsonDoc) + "\n"
+
+	jsonDoc, err = json.Marshal(info.ContainerName)
+	if err != nil {
+		return nil, fmt.Errorf("could not serialize container name: %w", err)
+	}
+	rawVars += "original.container_name:" + string(jsonDoc) + "\n"
+
+	jsonDoc, err = json.Marshal(info.ContainerGroupName)
+	if err != nil {
+		return nil, fmt.Errorf("could not serialize container group name: %w", err)
+	}
+	rawVars += "original.container_group_name:" + string(jsonDoc) + "\n"
+
+	jsonDoc, err = json.Marshal(info.EntryPoint)
+	if err != nil {
+		return nil, fmt.Errorf("could not serialize container entry point: %w", err)
+	}
+	rawVars += "original.entry_point:" + string(jsonDoc) + "\n"
+
+	jsonDoc, err = json.Marshal(info.Command)
+	if err != nil {
+		return nil, fmt.Errorf("could not serialize container command: %w", err)
+	}
+	rawVars += "original.command:" + string(jsonDoc) + "\n"
+
+	rawEnv, err := json.Marshal(info.EnvironmentVariables)
+	if err != nil {
+		return nil, fmt.Errorf("could not serialize container environment variables: %w", err)
+	}
+
+	configString := string(rawVars) + "\n" +
 		"config:" + k.config + "\n" +
 		defaults + "build.environment_variables: " + string(rawEnv) + "\n" +
 		k.definition
