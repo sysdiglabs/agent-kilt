@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"github.com/Jeffail/gabs/v2"
 	"os"
 	"strings"
 
@@ -78,6 +79,11 @@ func GetConfig() *cfnpatcher.Configuration {
 	disableRepoHints := os.Getenv("KILT_DISABLE_REPO_HINTS")
 	logGroup := os.Getenv("KILT_LOG_GROUP")
 	parameterizeEnvars := os.Getenv("KILT_PARAMETERIZE_ENVARS")
+	sidecarEssential := os.Getenv("KILT_SIDECAR_ESSENTIAL")
+	sidecarCpu := os.Getenv("KILT_SIDECAR_CPU")
+	sidecarMemoryLimit := os.Getenv("KILT_SIDECAR_MEMORY_LIMIT")
+	sidecarMemoryReservation := os.Getenv("KILT_SIDECAR_MEMORY_RESERVATION")
+	sidecarConfig := os.Getenv("KILT_SIDECAR_CONFIG")
 
 	var fullDefinition string
 	switch definitionType {
@@ -95,21 +101,56 @@ func GetConfig() *cfnpatcher.Configuration {
 		panic("unrecognized definition type - " + definitionType)
 	}
 
-	sidecarConfig := ""
-	if imageAuth != "" {
-		sc, err := json.Marshal(map[string]interface{}{
-			"RepositoryCredentials": map[string]interface{}{
-				"CredentialsParameter": imageAuth,
-			},
-		})
-
+	scObj := gabs.New()
+	if sidecarConfig != "" {
+		sc, err := gabs.ParseJSON([]byte(sidecarConfig))
 		if err != nil {
-			panic("cannot marshal sidecar config: " + err.Error())
+			panic("cannot parse sidecar config: " + err.Error())
 		}
-
-		sidecarConfig = string(sc)
+		scObj = sc
 	}
 
+	if imageAuth != "" {
+		_, err := scObj.Set(imageAuth, "RepositoryCredentials", "CredentialsParameter")
+		if err != nil {
+			panic("cannot set image auth secret in sidecar config: " + err.Error())
+		}
+	}
+
+	if sidecarEssential != "" {
+		_, err := scObj.Set(sidecarEssential, "Essential")
+		if err != nil {
+			panic("cannot set sidecar essential in sidecar config: " + err.Error())
+		}
+	}
+
+	if sidecarCpu != "" {
+		_, err := scObj.Set(sidecarCpu, "Cpu")
+		if err != nil {
+			panic("cannot set sidecar cpu in sidecar config: " + err.Error())
+		}
+	}
+
+	if sidecarMemoryLimit != "" {
+		_, err := scObj.Set(sidecarMemoryLimit, "Memory")
+		if err != nil {
+			panic("cannot set sidecar memory limit in sidecar config: " + err.Error())
+		}
+	}
+
+	if sidecarMemoryReservation != "" {
+		_, err := scObj.Set(sidecarMemoryReservation, "MemoryReservation")
+		if err != nil {
+			panic("cannot set sidecar memory reservation in sidecar config: " + err.Error())
+		}
+	}
+
+	sc, err := json.Marshal(scObj)
+	if err != nil {
+		panic("cannot marshal sidecar config: " + err.Error())
+	}
+
+	sidecarConfig = string(sc)
 	configuration := &cfnpatcher.Configuration{
 		Kilt:               fullDefinition,
 		OptIn:              optIn != "",
