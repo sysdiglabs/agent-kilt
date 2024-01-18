@@ -10,12 +10,12 @@ import (
 
 type Configuration struct {
 	Kilt               string
-	ImageAuthSecret    string
 	OptIn              bool
 	RecipeConfig       string
 	UseRepositoryHints bool
 	LogGroup           string
 	ParameterizeEnvars bool
+	SidecarConfig      string
 }
 
 type InstrumentationHints struct {

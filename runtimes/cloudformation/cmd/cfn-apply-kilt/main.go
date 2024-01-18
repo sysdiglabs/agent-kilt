@@ -30,7 +30,6 @@ func main() {
 
 	config := &cfnpatcher.Configuration{
 		Kilt:               string(kiltDef),
-		ImageAuthSecret:    "",
 		OptIn:              false,
 		UseRepositoryHints: true,
 	}

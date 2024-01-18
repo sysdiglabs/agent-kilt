@@ -51,6 +51,13 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 	l := log.Ctx(ctx)
 
 	sidecarConfig := gabs.New()
+	if len(configuration.SidecarConfig) > 0 {
+		sc, err := gabs.ParseJSON([]byte(configuration.SidecarConfig))
+		if err != nil {
+			return nil, fmt.Errorf("could not parse sidecar configuration: %w", err)
+		}
+		sidecarConfig = sc
+	}
 	err := applyConfiguration(sidecarConfig, configuration, name)
 	if err != nil {
 		return nil, fmt.Errorf("could not apply sidecar configuration: %w", err)
@@ -78,12 +85,6 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 }
 
 func applyConfiguration(container *gabs.Container, configuration *Configuration, taskName string) error {
-	if len(configuration.ImageAuthSecret) > 0 {
-		_, err := container.Set(configuration.ImageAuthSecret, "RepositoryCredentials", "CredentialsParameter")
-		if err != nil {
-			return fmt.Errorf("could not set image auth secret: %w", err)
-		}
-	}
 	if len(configuration.LogGroup) > 0 {
 		_, err := container.Set(prepareLogConfiguration(taskName, configuration.LogGroup), "LogConfiguration")
 		if err != nil {
