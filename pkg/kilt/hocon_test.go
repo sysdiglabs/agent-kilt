@@ -1,19 +1,56 @@
 package kilt
 
 import (
-	"encoding/json"
-	"io/ioutil"
+	"github.com/Jeffail/gabs/v2"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSimpleBuild(t *testing.T) {
-	targetInfoString, _ := ioutil.ReadFile("./fixtures/input.json")
-	definitionString, _ := ioutil.ReadFile("./fixtures/kilt.cfg")
-	k := NewKiltHocon(string(definitionString))
+func toStringOrEmpty(c interface{}) string {
+	switch c.(type) {
+	case string:
+		return c.(string)
+	default:
+		return ""
+	}
+}
+
+func toStringArrayOrEmpty(c *gabs.Container) []string {
+	switch c.Data().(type) {
+	case []interface{}:
+		var arr []string
+		for _, v := range c.Data().([]interface{}) {
+			arr = append(arr, toStringOrEmpty(v))
+		}
+		return arr
+	default:
+		return []string{}
+	}
+}
+
+func readInput(path string) *TargetInfo {
+	targetInfoString, _ := os.ReadFile(path)
+	gabsInfo, _ := gabs.ParseJSON(targetInfoString)
 	info := new(TargetInfo)
-	_ = json.Unmarshal(targetInfoString, info)
+	info.Image = toStringOrEmpty(gabsInfo.S("image").Data())
+	info.ContainerName = toStringOrEmpty(gabsInfo.S("container_name").Data())
+	info.ContainerGroupName = toStringOrEmpty(gabsInfo.S("container_group_name").Data())
+	info.EntryPoint = toStringArrayOrEmpty(gabsInfo.S("entry_point"))
+	info.Command = toStringArrayOrEmpty(gabsInfo.S("command"))
+	info.EnvironmentVariables = make(map[string]string)
+	for k, v := range gabsInfo.S("environment_variables").ChildrenMap() {
+		info.EnvironmentVariables[k] = v.Data().(string)
+	}
+	return info
+}
+
+func TestSimpleBuild(t *testing.T) {
+	info := readInput("./fixtures/input.json")
+	definitionString, _ := os.ReadFile("./fixtures/kilt.cfg")
+
+	k := NewKiltHocon(string(definitionString))
 	b, _ := k.Build(info)
 
 	assert.Equal(t, "busybox:latest", b.Image)
@@ -23,12 +60,10 @@ func TestSimpleBuild(t *testing.T) {
 }
 
 func TestEnvironmentVariables(t *testing.T) {
-	targetInfoString, _ := ioutil.ReadFile("./fixtures/env_vars_input.json")
-	definitionString, _ := ioutil.ReadFile("./fixtures/kilt_env_vars.cfg")
+	info := readInput("./fixtures/env_vars_input.json")
+	definitionString, _ := os.ReadFile("./fixtures/kilt_env_vars.cfg")
 
 	k := NewKiltHocon(string(definitionString))
-	info := new(TargetInfo)
-	_ = json.Unmarshal(targetInfoString, info)
 	b, _ := k.Build(info)
 
 	assert.Containsf(t, b.EnvironmentVariables, "PREEXISTING", "does not contain preexisting vars")
