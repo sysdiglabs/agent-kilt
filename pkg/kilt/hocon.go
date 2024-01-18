@@ -18,18 +18,20 @@ build {
 `
 
 type KiltHocon struct {
-	definition string
-	config     string
+	definition    string
+	config        string
+	sidecarConfig interface{}
 }
 
 func NewKiltHocon(definition string) *KiltHocon {
-	return NewKiltHoconWithConfig(definition, "{}")
+	return NewKiltHoconWithConfig(definition, "{}", nil)
 }
 
-func NewKiltHoconWithConfig(definition string, recipeConfig string) *KiltHocon {
+func NewKiltHoconWithConfig(definition string, recipeConfig string, sidecarConfig interface{}) *KiltHocon {
 	h := new(KiltHocon)
 	h.definition = definition
 	h.config = recipeConfig
+	h.sidecarConfig = sidecarConfig
 	return h
 }
 
@@ -76,8 +78,17 @@ func (k *KiltHocon) prepareFullStringConfig(container *gabs.Container, groupName
 	}
 	rawVars += "original.environment_variables:" + string(jsonDoc) + "\n"
 
+	sidecarConfig := []byte("{}")
+	if k.sidecarConfig != nil {
+		sidecarConfig, err = json.Marshal(k.sidecarConfig)
+		if err != nil {
+			return nil, fmt.Errorf("could not serialize sidecar configuration: %w", err)
+		}
+	}
+
 	configString := string(rawVars) + "\n" +
 		"config:" + k.config + "\n" +
+		"sidecar_config:" + string(sidecarConfig) + "\n" +
 		defaults + "\n" +
 		k.definition
 

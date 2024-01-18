@@ -12,6 +12,9 @@ import (
 )
 
 func renderHoconValue(v *hocon.HoconValue) interface{} {
+	if v == nil {
+		return nil
+	}
 	if v.IsObject() {
 		obj := v.GetObject()
 		items := obj.Items()
@@ -185,6 +188,8 @@ func applyPatch(container *gabs.Container, config *configuration.Config, patchCo
 	b.Resources = make(map[string]*gabs.Container)
 	if config.IsArray("build.mount") {
 		mounts := config.GetValue("build.mount").GetArray()
+		sidecarConfig := gabs.New()
+		sidecarConfig.Set(renderHoconValue(config.GetValue("sidecar_config")))
 
 		for k, m := range mounts {
 			if m.IsObject() {
@@ -253,6 +258,10 @@ func applyPatch(container *gabs.Container, config *configuration.Config, patchCo
 					return nil, err
 				}
 
+				err = sidecar.Merge(sidecarConfig)
+				if err != nil {
+					return nil, fmt.Errorf("could not merge sidecar configuration: %w", err)
+				}
 				b.Resources[sidecarName] = sidecar
 			}
 		}
