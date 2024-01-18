@@ -57,7 +57,7 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 	l := log.Ctx(ctx)
 
 	successes := 0
-	containers := make(map[string]kilt.BuildResource)
+	containers := make(map[string]*gabs.Container)
 	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig)
 
 	taskPatch, err := k.Task()
@@ -99,8 +99,8 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 			l.Info().Msgf("created patch for container: %v", patch)
 			successes += 1
 
-			for _, appendResource := range patch.Resources {
-				containers[appendResource.Name] = appendResource
+			for name, sidecar := range patch.Resources {
+				containers[name] = sidecar
 			}
 		}
 		err := appendContainers(resource, containers, configuration.ImageAuthSecret, configuration.LogGroup, name)
@@ -114,27 +114,17 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 	return resource, nil
 }
 
-func appendContainers(resource *gabs.Container, containers map[string]kilt.BuildResource, imageAuth string, logGroup string, name string) error {
-	for _, inject := range containers {
-		appended := map[string]interface{}{
-			"Name":       inject.Name,
-			"Image":      inject.Image,
-			"EntryPoint": inject.EntryPoint,
-		}
-		if len(inject.EnvironmentVariables) > 0 {
-			appended["Environment"] = inject.EnvironmentVariables
-		}
+func appendContainers(resource *gabs.Container, containers map[string]*gabs.Container, imageAuth string, logGroup string, name string) error {
+	for sidecarName, appended := range containers {
 		if len(imageAuth) > 0 {
-			appended["RepositoryCredentials"] = map[string]interface{}{
-				"CredentialsParameter": imageAuth,
-			}
+			appended.Set(imageAuth, "RepositoryCredentials", "CredentialsParameter")
 		}
 		if len(logGroup) > 0 {
-			appended["LogConfiguration"] = prepareLogConfiguration(name, logGroup)
+			appended.Set(prepareLogConfiguration(name, logGroup), "LogConfiguration")
 		}
 		_, err := resource.Set(appended, "Properties", "ContainerDefinitions", "-")
 		if err != nil {
-			return fmt.Errorf("could not inject %s: %w", inject.Name, err)
+			return fmt.Errorf("could not inject %s: %w", sidecarName, err)
 		}
 	}
 	return nil
