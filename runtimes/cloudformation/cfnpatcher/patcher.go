@@ -104,7 +104,7 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 			l.Info().Msgf("created patch for container: %v", patch)
 			successes += 1
 
-			for name, sidecar := range patch.Resources {
+			for name, sidecar := range patch.Sidecars {
 				containers[name] = sidecar
 			}
 		}

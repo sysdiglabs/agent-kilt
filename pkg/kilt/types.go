@@ -3,8 +3,7 @@ package kilt
 import "github.com/Jeffail/gabs/v2"
 
 type Build struct {
-	EnvParameters *gabs.Container
-	Resources     map[string]*gabs.Container
+	Sidecars map[string]*gabs.Container
 }
 
 type Task struct {

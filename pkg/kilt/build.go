@@ -125,6 +125,27 @@ func patchEnvironment(container *gabs.Container, env *hocon.HoconValue, overwrit
 	return nil
 }
 
+func getTaskParameters(config *configuration.Config, patchConfig *PatchConfig) *gabs.Container {
+	if !patchConfig.ParametrizeEnvars {
+		return nil
+	}
+
+	env := config.GetValue("build.environment_variables")
+	if env == nil || !env.IsObject() {
+		return nil
+	}
+
+	taskParameters := gabs.New()
+	taskParameters.Set(make(map[string]interface{}))
+	for k, v := range env.GetObject().Items() {
+		keyStripped := getParameterName(k)
+		taskParameters.Set("String", "Parameters", keyStripped, "Type")
+		taskParameters.Set(renderHoconValue(v), "Parameters", keyStripped, "Default")
+	}
+
+	return taskParameters
+}
+
 func applyPatch(container *gabs.Container, config *configuration.Config, patchConfig *PatchConfig) (*Build, error) {
 	b := new(Build)
 
@@ -175,17 +196,7 @@ func applyPatch(container *gabs.Container, config *configuration.Config, patchCo
 		return nil, err
 	}
 
-	if env != nil && env.IsObject() && patchConfig.ParametrizeEnvars {
-		b.EnvParameters = gabs.New()
-		b.EnvParameters.Set(make(map[string]interface{}))
-		for k, v := range env.GetObject().Items() {
-			keyStripped := getParameterName(k)
-			b.EnvParameters.Set("String", "Parameters", keyStripped, "Type")
-			b.EnvParameters.Set(renderHoconValue(v), "Parameters", keyStripped, "Default")
-		}
-	}
-
-	b.Resources = make(map[string]*gabs.Container)
+	b.Sidecars = make(map[string]*gabs.Container)
 	if config.IsArray("build.mount") {
 		mounts := config.GetValue("build.mount").GetArray()
 		sidecarConfig := gabs.New()
@@ -262,7 +273,7 @@ func applyPatch(container *gabs.Container, config *configuration.Config, patchCo
 				if err != nil {
 					return nil, fmt.Errorf("could not merge sidecar configuration: %w", err)
 				}
-				b.Resources[sidecarName] = sidecar
+				b.Sidecars[sidecarName] = sidecar
 			}
 		}
 	}
