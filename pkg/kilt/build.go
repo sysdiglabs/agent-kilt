@@ -182,6 +182,7 @@ func applyPatch(container *gabs.Container, config *configuration.Config, patchCo
 		}
 	}
 
+	b.Resources = make(map[string]*gabs.Container)
 	if config.IsArray("build.mount") {
 		mounts := config.GetValue("build.mount").GetArray()
 
@@ -189,23 +190,33 @@ func applyPatch(container *gabs.Container, config *configuration.Config, patchCo
 			if m.IsObject() {
 				mount := m.GetObject()
 
-				resource := BuildResource{
-					Name:       mount.GetKey("name").GetString(),
-					Image:      mount.GetKey("image").GetString(),
-					Volumes:    mount.GetKey("volumes").GetStringList(),
-					EntryPoint: mount.GetKey("entry_point").GetStringList(),
+				sidecarName := mount.GetKey("name").GetString()
+				sidecarImage := mount.GetKey("image").GetString()
+				if sidecarName == "" || sidecarImage == "" {
+					return nil, fmt.Errorf("error at build.mount.%d: name and image are required ", k)
 				}
 
-				if len(resource.Volumes) != 0 {
+				if len(mount.GetKey("volumes").GetStringList()) > 0 {
 					addVolume := map[string]interface{}{
 						"ReadOnly":        true,
-						"SourceContainer": resource.Name,
+						"SourceContainer": sidecarName,
 					}
 
 					err := container.ArrayAppend(addVolume, "VolumesFrom")
 					if err != nil {
 						return nil, fmt.Errorf("could not add VolumesFrom directive: %w", err)
 					}
+				}
+
+				sidecar := gabs.New()
+				sidecar.Set(map[string]interface{}{
+					"Name":  sidecarName,
+					"Image": sidecarImage,
+				})
+
+				sidecarEntryPoint := mount.GetKey("entry_point").GetStringList()
+				if sidecarEntryPoint != nil && len(sidecarEntryPoint) > 0 {
+					sidecar.Set(sidecarEntryPoint, "EntryPoint")
 				}
 
 				sidecarEnv := mount.GetKey("environment_variables")
@@ -228,32 +239,21 @@ func applyPatch(container *gabs.Container, config *configuration.Config, patchCo
 					}
 				}
 
-				sidecarContainer := gabs.New()
-				sidecarContainer.Set(make(map[string]interface{}))
-				sidecarContainer.Set(sidecarEnvKv, "Environment")
+				if len(sidecarEnvKv) > 0 {
+					sidecar.Set(sidecarEnvKv, "Environment")
+				}
 
-				err := patchEnvironment(sidecarContainer, config.GetValue("original.environment_variables"), false, false)
+				err := patchEnvironment(sidecar, config.GetValue("original.environment_variables"), false, false)
 				if err != nil {
 					return nil, err
 				}
 
-				err = patchEnvironment(sidecarContainer, env, false, patchConfig.ParametrizeEnvars)
+				err = patchEnvironment(sidecar, env, false, patchConfig.ParametrizeEnvars)
 				if err != nil {
 					return nil, err
 				}
 
-				for _, kv := range sidecarContainer.S("Environment").Children() {
-					resource.EnvironmentVariables = append(resource.EnvironmentVariables, map[string]interface{}{
-						"Name":  kv.S("Name").Data().(string),
-						"Value": kv.S("Value").Data(),
-					})
-				}
-
-				if resource.Image == "" || len(resource.Volumes) == 0 || len(resource.EntryPoint) == 0 {
-					return nil, fmt.Errorf("error at build.mount.%d: image, volumes and entry_point are all required ", k)
-				}
-
-				b.Resources = append(b.Resources, resource)
+				b.Resources[sidecarName] = sidecar
 			}
 		}
 	}
