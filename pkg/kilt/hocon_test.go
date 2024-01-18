@@ -17,23 +17,22 @@ func toStringOrEmpty(c interface{}) string {
 	}
 }
 
-func readInput(path string) (*TargetInfo, string) {
+func readInput(path string) (*gabs.Container, string) {
 	targetInfoString, _ := os.ReadFile(path)
 	gabsInfo, _ := gabs.ParseJSON(targetInfoString)
-	info := new(TargetInfo)
-	info.Image = gabsInfo.S("image")
-	info.ContainerName = gabsInfo.S("container_name")
+	container := gabs.New()
+	container.Set(gabsInfo.S("image").Data(), "Image")
+	container.Set(gabsInfo.S("name").Data(), "Name")
 	containerGroupName := toStringOrEmpty(gabsInfo.S("container_group_name").Data())
-	info.EntryPoint = gabsInfo.S("entry_point")
-	info.Command = gabsInfo.S("command")
-	info.EnvironmentVariables = make([]map[string]*gabs.Container, 0)
+	container.Set(gabsInfo.S("entry_point").Data(), "EntryPoint")
+	container.Set(gabsInfo.S("command").Data(), "Command")
 	for k, v := range gabsInfo.S("environment_variables").ChildrenMap() {
-		env := make(map[string]*gabs.Container)
-		env["Name"] = gabs.Wrap(k)
-		env["Value"] = v
-		info.EnvironmentVariables = append(info.EnvironmentVariables, env)
+		env := make(map[string]interface{})
+		env["Name"] = k
+		env["Value"] = v.Data()
+		container.ArrayAppend(env, "Environment")
 	}
-	return info, containerGroupName
+	return container, containerGroupName
 }
 
 func getEnvByName(container *gabs.Container, name string) *string {
@@ -47,12 +46,11 @@ func getEnvByName(container *gabs.Container, name string) *string {
 }
 
 func TestSimpleBuild(t *testing.T) {
-	info, groupName := readInput("./fixtures/input.json")
+	container, groupName := readInput("./fixtures/input.json")
 	definitionString, _ := os.ReadFile("./fixtures/kilt.cfg")
 
 	k := NewKiltHocon(string(definitionString))
-	container := gabs.New()
-	b, _ := k.Patch(container, &PatchConfig{}, info, groupName)
+	b, _ := k.Patch(container, &PatchConfig{}, groupName)
 
 	assert.Equal(t, "busybox:latest", toStringOrEmpty(container.S("Image").Data()))
 	assert.Equal(t, "/falco/pdig", toStringOrEmpty(container.S("EntryPoint").Children()[0].Data()))
@@ -61,12 +59,11 @@ func TestSimpleBuild(t *testing.T) {
 }
 
 func TestEnvironmentVariables(t *testing.T) {
-	info, groupName := readInput("./fixtures/env_vars_input.json")
+	container, groupName := readInput("./fixtures/env_vars_input.json")
 	definitionString, _ := os.ReadFile("./fixtures/kilt_env_vars.cfg")
 
 	k := NewKiltHocon(string(definitionString))
-	container := gabs.New()
-	k.Patch(container, &PatchConfig{}, info, groupName)
+	k.Patch(container, &PatchConfig{}, groupName)
 
 	assert.Equal(t, "true", *getEnvByName(container, "PREEXISTING"))
 }
