@@ -40,15 +40,10 @@ func applyParametersPatch(ctx context.Context, template *gabs.Container, configu
 	}
 
 	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig, nil)
-	parameters, err := k.GetParameters(&patchConfig)
+	err := k.PatchCfnTemplate(template, &patchConfig)
 	if err != nil {
 		return nil, err
 	}
-	if parameters == nil {
-		return template, nil
-	}
-
-	template.Merge(parameters)
 	return template, nil
 }
 
@@ -65,23 +60,9 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 	containers := make(map[string]*gabs.Container)
 	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig, sidecarConfig)
 
-	taskPatch, err := k.Task()
+	err = k.PatchTaskDefinition(resource)
 	if err != nil {
-		return nil, fmt.Errorf("could not get task definition patch: %w", err)
-	}
-
-	if taskPatch.PidMode != "" {
-		if !resource.Exists("Properties") {
-			_, err := resource.Set(map[string]interface{}{}, "Properties")
-			if err != nil {
-				return nil, fmt.Errorf("could not add properties to task definition: %w", err)
-			}
-		}
-
-		_, err = resource.Set(taskPatch.PidMode, "Properties", "PidMode")
-		if err != nil {
-			return nil, fmt.Errorf("could not set PidMode: %w", err)
-		}
+		return nil, fmt.Errorf("could not patch task definition: %w", err)
 	}
 
 	patchConfig := kilt.PatchConfig{
@@ -97,7 +78,7 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 
 			fillContainerInfo(ctx, container, parameters, configuration)
 
-			patch, err := k.Patch(container, &patchConfig, name)
+			patch, err := k.PatchContainerDefinition(container, &patchConfig, name)
 			if err != nil {
 				return nil, fmt.Errorf("could not construct kilt patch: %w", err)
 			}
