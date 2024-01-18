@@ -16,12 +16,12 @@ import (
 )
 
 type MacroInput struct {
-	Region      string                      `json:"region"`
-	AccountID   string                      `json:"accountId"`
-	RequestID   string                      `json:"requestId"`
-	TransformID string                      `json:"transformId"`
+	Region                  string          `json:"region"`
+	AccountID               string          `json:"accountId"`
+	RequestID               string          `json:"requestId"`
+	TransformID             string          `json:"transformId"`
 	TemplateParameterValues json.RawMessage `json:"templateParameterValues"`
-	Fragment    json.RawMessage             `json:"fragment"`
+	Fragment                json.RawMessage `json:"fragment"`
 }
 
 type MacroOutput struct {
@@ -95,14 +95,29 @@ func GetConfig() *cfnpatcher.Configuration {
 		panic("unrecognized definition type - " + definitionType)
 	}
 
+	sidecarConfig := ""
+	if imageAuth != "" {
+		sc, err := json.Marshal(map[string]interface{}{
+			"RepositoryCredentials": map[string]interface{}{
+				"CredentialsParameter": imageAuth,
+			},
+		})
+
+		if err != nil {
+			panic("cannot marshal sidecar config: " + err.Error())
+		}
+
+		sidecarConfig = string(sc)
+	}
+
 	configuration := &cfnpatcher.Configuration{
 		Kilt:               fullDefinition,
-		ImageAuthSecret:    imageAuth,
 		OptIn:              optIn != "",
 		RecipeConfig:       recipeConfig,
 		UseRepositoryHints: disableRepoHints == "",
 		LogGroup:           logGroup,
 		ParameterizeEnvars: strings.ToLower(parameterizeEnvars) == "true",
+		SidecarConfig:      sidecarConfig,
 	}
 
 	return configuration
