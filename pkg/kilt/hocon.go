@@ -107,11 +107,11 @@ func (k *KiltHocon) Patch(container *gabs.Container, patchConfig *PatchConfig, g
 func (k *KiltHocon) GetParameters(patchConfig *PatchConfig) (*gabs.Container, error) {
 	container := gabs.New()
 	container.Set(make(map[string]interface{}))
-	build, err := k.Patch(container, patchConfig, "")
+	config, err := k.prepareFullStringConfig(container, "")
 	if err != nil {
-		return nil, fmt.Errorf("could not get task parameter patch: %w", err)
+		return nil, fmt.Errorf("could not assemble full config: %w", err)
 	}
-	return build.EnvParameters, nil
+	return getTaskParameters(config, patchConfig), nil
 }
 
 func (k *KiltHocon) Task() (*Task, error) {

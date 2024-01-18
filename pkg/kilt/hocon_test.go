@@ -55,7 +55,7 @@ func TestSimpleBuild(t *testing.T) {
 	assert.Equal(t, "busybox:latest", toStringOrEmpty(container.S("Image").Data()))
 	assert.Equal(t, "/falco/pdig", toStringOrEmpty(container.S("EntryPoint").Children()[0].Data()))
 	assert.Equal(t, "true", *getEnvByName(container, "TEST"))
-	assert.Equal(t, 1, len(b.Resources))
+	assert.Equal(t, 1, len(b.Sidecars))
 }
 
 func TestEnvironmentVariables(t *testing.T) {
