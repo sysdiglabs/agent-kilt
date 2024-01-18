@@ -146,9 +146,7 @@ func getTaskParameters(config *configuration.Config, patchConfig *PatchConfig) *
 	return taskParameters
 }
 
-func applyPatch(container *gabs.Container, config *configuration.Config, patchConfig *PatchConfig) (*Build, error) {
-	b := new(Build)
-
+func applyPatch(container *gabs.Container, config *configuration.Config, patchConfig *PatchConfig) (map[string]*gabs.Container, error) {
 	_, err := container.Set(renderHoconValue(config.GetValue("build.image")), "Image")
 	if err != nil {
 		return nil, fmt.Errorf("could not set image: %w", err)
@@ -196,7 +194,7 @@ func applyPatch(container *gabs.Container, config *configuration.Config, patchCo
 		return nil, err
 	}
 
-	b.Sidecars = make(map[string]*gabs.Container)
+	sidecars := make(map[string]*gabs.Container)
 	if config.IsArray("build.mount") {
 		mounts := config.GetValue("build.mount").GetArray()
 		sidecarConfig := gabs.New()
@@ -273,10 +271,10 @@ func applyPatch(container *gabs.Container, config *configuration.Config, patchCo
 				if err != nil {
 					return nil, fmt.Errorf("could not merge sidecar configuration: %w", err)
 				}
-				b.Sidecars[sidecarName] = sidecar
+				sidecars[sidecarName] = sidecar
 			}
 		}
 	}
 
-	return b, nil
+	return sidecars, nil
 }
