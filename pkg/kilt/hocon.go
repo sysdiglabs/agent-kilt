@@ -95,7 +95,7 @@ func (k *KiltHocon) prepareFullStringConfig(container *gabs.Container, groupName
 	return configuration.ParseString(configString), nil
 }
 
-func (k *KiltHocon) PatchContainerDefinitions(containers *gabs.Container, patchConfig *PatchConfig, groupName string, filter func(container *gabs.Container) bool) error {
+func (k *KiltHocon) patchContainerDefinitions(containers *gabs.Container, patchConfig *PatchConfig, groupName string, filter func(container *gabs.Container) bool) error {
 	sidecars := make(map[string]*gabs.Container)
 
 	for _, container := range containers.Children() {
@@ -139,7 +139,7 @@ func (k *KiltHocon) PatchCfnTemplate(template *gabs.Container, patchConfig *Patc
 	return nil
 }
 
-func (k *KiltHocon) PatchTaskDefinition(taskdef *gabs.Container) error {
+func (k *KiltHocon) PatchTaskDefinition(taskdef *gabs.Container, patchConfig *PatchConfig, groupName string, filter func(container *gabs.Container) bool) error {
 	container := gabs.New()
 	container.Set(make(map[string]interface{}))
 	config, err := k.prepareFullStringConfig(container, "")
@@ -155,5 +155,14 @@ func (k *KiltHocon) PatchTaskDefinition(taskdef *gabs.Container) error {
 		}
 	}
 
+	containerDefinitions := taskdef.S("Properties", "ContainerDefinitions")
+	if containerDefinitions != nil {
+		err := k.patchContainerDefinitions(containerDefinitions, patchConfig, groupName, filter)
+		if err != nil {
+			return err
+		}
+
+		taskdef.Set(containerDefinitions, "Properties", "ContainerDefinitions")
+	}
 	return nil
 }
