@@ -39,7 +39,7 @@ func applyParametersPatch(ctx context.Context, template *gabs.Container, configu
 		ParametrizeEnvars: configuration.ParameterizeEnvars,
 	}
 
-	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig)
+	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig, nil)
 	container := gabs.New()
 	container.Set(make(map[string]interface{}))
 	build, _ := k.Patch(container, &patchConfig, "")
@@ -56,9 +56,15 @@ func applyParametersPatch(ctx context.Context, template *gabs.Container, configu
 func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parameters *gabs.Container, configuration *Configuration, hints *InstrumentationHints) (*gabs.Container, error) {
 	l := log.Ctx(ctx)
 
+	sidecarConfig := gabs.New()
+	err := applyConfiguration(sidecarConfig, configuration, name)
+	if err != nil {
+		return nil, fmt.Errorf("could not apply sidecar configuration: %w", err)
+	}
+
 	successes := 0
 	containers := make(map[string]*gabs.Container)
-	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig)
+	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig, sidecarConfig)
 
 	taskPatch, err := k.Task()
 	if err != nil {
@@ -103,9 +109,11 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 				containers[name] = sidecar
 			}
 		}
-		err := appendContainers(resource, containers, configuration.ImageAuthSecret, configuration.LogGroup, name)
-		if err != nil {
-			return nil, fmt.Errorf("could not append container: %w", err)
+		for sidecarName, sidecar := range containers {
+			_, err := resource.Set(sidecar, "Properties", "ContainerDefinitions", "-")
+			if err != nil {
+				return nil, fmt.Errorf("could not inject %s: %w", sidecarName, err)
+			}
 		}
 	}
 	if successes == 0 {
@@ -114,17 +122,17 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 	return resource, nil
 }
 
-func appendContainers(resource *gabs.Container, containers map[string]*gabs.Container, imageAuth string, logGroup string, name string) error {
-	for sidecarName, appended := range containers {
-		if len(imageAuth) > 0 {
-			appended.Set(imageAuth, "RepositoryCredentials", "CredentialsParameter")
-		}
-		if len(logGroup) > 0 {
-			appended.Set(prepareLogConfiguration(name, logGroup), "LogConfiguration")
-		}
-		_, err := resource.Set(appended, "Properties", "ContainerDefinitions", "-")
+func applyConfiguration(container *gabs.Container, configuration *Configuration, taskName string) error {
+	if len(configuration.ImageAuthSecret) > 0 {
+		_, err := container.Set(configuration.ImageAuthSecret, "RepositoryCredentials", "CredentialsParameter")
 		if err != nil {
-			return fmt.Errorf("could not inject %s: %w", sidecarName, err)
+			return fmt.Errorf("could not set image auth secret: %w", err)
+		}
+	}
+	if len(configuration.LogGroup) > 0 {
+		_, err := container.Set(prepareLogConfiguration(taskName, configuration.LogGroup), "LogConfiguration")
+		if err != nil {
+			return fmt.Errorf("could not set log configuration: %w", err)
 		}
 	}
 	return nil
