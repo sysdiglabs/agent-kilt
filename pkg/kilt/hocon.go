@@ -95,7 +95,7 @@ func (k *KiltHocon) prepareFullStringConfig(container *gabs.Container, groupName
 	return configuration.ParseString(configString), nil
 }
 
-func (k *KiltHocon) Patch(container *gabs.Container, patchConfig *PatchConfig, groupName string) (*Build, error) {
+func (k *KiltHocon) PatchContainerDefinition(container *gabs.Container, patchConfig *PatchConfig, groupName string) (*Build, error) {
 	config, err := k.prepareFullStringConfig(container, groupName)
 	if err != nil {
 		return nil, fmt.Errorf("could not assemble full config: %w", err)
@@ -104,22 +104,36 @@ func (k *KiltHocon) Patch(container *gabs.Container, patchConfig *PatchConfig, g
 	return applyPatch(container, config, patchConfig)
 }
 
-func (k *KiltHocon) GetParameters(patchConfig *PatchConfig) (*gabs.Container, error) {
+func (k *KiltHocon) PatchCfnTemplate(template *gabs.Container, patchConfig *PatchConfig) error {
 	container := gabs.New()
 	container.Set(make(map[string]interface{}))
 	config, err := k.prepareFullStringConfig(container, "")
 	if err != nil {
-		return nil, fmt.Errorf("could not assemble full config: %w", err)
+		return fmt.Errorf("could not assemble full config: %w", err)
 	}
-	return getTaskParameters(config, patchConfig), nil
+	params := getTaskParameters(config, patchConfig)
+	err = template.Merge(params)
+	if err != nil {
+		return fmt.Errorf("could not merge parameters: %w", err)
+	}
+	return nil
 }
 
-func (k *KiltHocon) Task() (*Task, error) {
+func (k *KiltHocon) PatchTaskDefinition(taskdef *gabs.Container) error {
 	container := gabs.New()
 	container.Set(make(map[string]interface{}))
 	config, err := k.prepareFullStringConfig(container, "")
 	if err != nil {
-		return nil, fmt.Errorf("could not assemble full config: %w", err)
+		return fmt.Errorf("could not assemble full config: %w", err)
 	}
-	return extractTask(config)
+
+	if config.HasPath("task.pid_mode") {
+		pidMode := config.GetString("task.pid_mode")
+		_, err = taskdef.Set(pidMode, "Properties", "PidMode")
+		if err != nil {
+			return fmt.Errorf("could not set PidMode: %w", err)
+		}
+	}
+
+	return nil
 }
