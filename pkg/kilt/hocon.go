@@ -66,26 +66,27 @@ func (k *KiltHocon) prepareFullStringConfig(info *TargetInfo) (*configuration.Co
 	}
 	rawVars += "original.command:" + string(jsonDoc) + "\n"
 
-	rawEnv, err := json.Marshal(info.EnvironmentVariables)
+	jsonDoc, err = json.Marshal(info.EnvironmentVariables)
 	if err != nil {
 		return nil, fmt.Errorf("could not serialize container environment variables: %w", err)
 	}
+	rawVars += "original.environment_variables:" + string(jsonDoc) + "\n"
 
 	configString := string(rawVars) + "\n" +
 		"config:" + k.config + "\n" +
-		defaults + "build.environment_variables: " + string(rawEnv) + "\n" +
+		defaults + "\n" +
 		k.definition
 
 	return configuration.ParseString(configString), nil
 }
 
-func (k *KiltHocon) Patch(container *gabs.Container, info *TargetInfo) (*Build, error) {
+func (k *KiltHocon) Patch(container *gabs.Container, patchConfig *PatchConfig, info *TargetInfo) (*Build, error) {
 	config, err := k.prepareFullStringConfig(info)
 	if err != nil {
 		return nil, fmt.Errorf("could not assemble full config: %w", err)
 	}
 
-	return applyPatch(container, config)
+	return applyPatch(container, config, patchConfig)
 }
 
 func (k *KiltHocon) Task() (*Task, error) {
