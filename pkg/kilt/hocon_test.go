@@ -33,17 +33,27 @@ func readInput(path string) *TargetInfo {
 	return info
 }
 
+func getEnvByName(container *gabs.Container, name string) *string {
+	for _, env := range container.S("Environment").Children() {
+		if env.S("Name").Data().(string) == name {
+			value := env.S("Value").Data().(string)
+			return &value
+		}
+	}
+	return nil
+}
+
 func TestSimpleBuild(t *testing.T) {
 	info := readInput("./fixtures/input.json")
 	definitionString, _ := os.ReadFile("./fixtures/kilt.cfg")
 
 	k := NewKiltHocon(string(definitionString))
 	container := gabs.New()
-	b, _ := k.Patch(container, info)
+	b, _ := k.Patch(container, &PatchConfig{}, info)
 
 	assert.Equal(t, "busybox:latest", toStringOrEmpty(container.S("Image").Data()))
 	assert.Equal(t, "/falco/pdig", toStringOrEmpty(container.S("EntryPoint").Children()[0].Data()))
-	assert.Equal(t, "true", toStringOrEmpty(b.EnvironmentVariables["TEST"].Data()))
+	assert.Equal(t, "true", *getEnvByName(container, "TEST"))
 	assert.Equal(t, 1, len(b.Resources))
 }
 
@@ -53,8 +63,7 @@ func TestEnvironmentVariables(t *testing.T) {
 
 	k := NewKiltHocon(string(definitionString))
 	container := gabs.New()
-	b, _ := k.Patch(container, info)
+	k.Patch(container, &PatchConfig{}, info)
 
-	assert.Containsf(t, b.EnvironmentVariables, "PREEXISTING", "does not contain preexisting vars")
-	assert.Equal(t, "true", toStringOrEmpty(b.EnvironmentVariables["PREEXISTING"].Data()))
+	assert.Equal(t, "true", *getEnvByName(container, "PREEXISTING"))
 }

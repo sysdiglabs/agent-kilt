@@ -20,12 +20,16 @@ type BuildResource struct {
 }
 
 type Build struct {
-	EnvironmentVariables map[string]*gabs.Container
-	Capabilities         []string
+	EnvParameters *gabs.Container
+	Capabilities  []string
 
 	Resources []BuildResource
 }
 
 type Task struct {
 	PidMode string // the only value is `task` right now
+}
+
+type PatchConfig struct {
+	ParametrizeEnvars bool
 }

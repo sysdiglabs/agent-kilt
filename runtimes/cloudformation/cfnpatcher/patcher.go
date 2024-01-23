@@ -3,8 +3,6 @@ package cfnpatcher
 import (
 	"context"
 	"fmt"
-	"sort"
-
 	"github.com/sysdiglabs/agent-kilt/pkg/kilt"
 
 	"github.com/Jeffail/gabs/v2"
@@ -37,15 +35,21 @@ func shouldSkip(info *kilt.TargetInfo, configuration *Configuration, hints *Inst
 }
 
 func applyParametersPatch(ctx context.Context, template *gabs.Container, configuration *Configuration) (*gabs.Container, error) {
+	patchConfig := kilt.PatchConfig{
+		ParametrizeEnvars: configuration.ParameterizeEnvars,
+	}
+
 	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig)
 	container := gabs.New()
 	container.Set(make(map[string]interface{}))
-	build, _ := k.Patch(container, new(kilt.TargetInfo))
-	for k, v := range build.EnvironmentVariables {
-		keyStripped := getParameterName(k)
-		template.Set("String", "Parameters", keyStripped, "Type")
-		template.Set(v, "Parameters", keyStripped, "Default")
+	build, _ := k.Patch(container, &patchConfig, new(kilt.TargetInfo))
+
+	parameters := build.EnvParameters
+	if parameters == nil {
+		return template, nil
 	}
+
+	template.Merge(build.EnvParameters)
 	return template, nil
 }
 
@@ -75,6 +79,10 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 		}
 	}
 
+	patchConfig := kilt.PatchConfig{
+		ParametrizeEnvars: configuration.ParameterizeEnvars,
+	}
+
 	if resource.Exists("Properties", "ContainerDefinitions") {
 		for _, container := range resource.S("Properties", "ContainerDefinitions").Children() {
 			info := extractContainerInfo(ctx, resource, name, container, parameters, configuration)
@@ -83,7 +91,7 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 				l.Info().Msgf("skipping container due to hints in tags")
 				continue
 			}
-			patch, err := k.Patch(container, info)
+			patch, err := k.Patch(container, &patchConfig, info)
 			if err != nil {
 				return nil, fmt.Errorf("could not construct kilt patch: %w", err)
 			}
@@ -96,23 +104,6 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 			}
 
 			for _, appendResource := range patch.Resources {
-				existingSidecarVars := make(map[string]struct{})
-
-				for _, kv := range appendResource.EnvironmentVariables {
-					existingSidecarVars[kv["Name"].(string)] = struct{}{}
-				}
-
-				for k, v := range patch.EnvironmentVariables {
-					if _, ok := existingSidecarVars[k]; ok {
-						continue
-					}
-
-					keyValue := make(map[string]interface{})
-					keyValue["Name"] = k
-					keyValue["Value"] = v
-
-					appendResource.EnvironmentVariables = append(appendResource.EnvironmentVariables, keyValue)
-				}
 				containers[appendResource.Name] = appendResource
 			}
 		}
@@ -151,49 +142,6 @@ func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Containe
 		_, err := container.Set(addVolume, "VolumesFrom", "-")
 		if err != nil {
 			return fmt.Errorf("could not add VolumesFrom directive: %w", err)
-		}
-	}
-
-	if len(patch.EnvironmentVariables) > 0 {
-		originalVars := make(map[string]struct{})
-		finalEnvironment := make(map[string]*gabs.Container)
-		keys := make([]string, 0, len(patch.EnvironmentVariables)+len(container.S("Environment").Children()))
-
-		for _, kv := range container.S("Environment").Children() {
-			k := kv.S("Name").Data().(string)
-			keys = append(keys, k)
-			finalEnvironment[k] = kv.S("Value")
-			originalVars[k] = struct{}{}
-		}
-		_, err := container.Set([]interface{}{}, "Environment")
-
-		if err != nil {
-			return fmt.Errorf("could not add environment variable container: %w", err)
-		}
-
-		for k := range patch.EnvironmentVariables {
-			if _, ok := finalEnvironment[k]; !ok {
-				v := patch.EnvironmentVariables[k]
-				if configuration.ParameterizeEnvars && !v.Exists("Ref") {
-					v = gabs.Wrap(map[string]interface{}{"Ref": getParameterName(k)})
-				}
-				patch.EnvironmentVariables[k] = v
-				finalEnvironment[k] = v
-				keys = append(keys, k)
-			}
-		}
-		sort.Strings(keys)
-
-		for _, k := range keys {
-			keyValue := make(map[string]interface{})
-			keyValue["Name"] = k
-			keyValue["Value"] = finalEnvironment[k].Data()
-
-			_, err := container.Set(keyValue, "Environment", "-")
-
-			if err != nil {
-				return fmt.Errorf("could not add environment variable %v: %w", keyValue, err)
-			}
 		}
 	}
 
