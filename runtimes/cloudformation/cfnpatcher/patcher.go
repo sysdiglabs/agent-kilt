@@ -107,12 +107,7 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 
 					keyValue := make(map[string]interface{})
 					keyValue["Name"] = k
-
-					if configuration.ParameterizeEnvars && !v.Exists("Ref") {
-						keyValue["Value"] = map[string]interface{}{"Ref": getParameterName(k)}
-					} else {
-						keyValue["Value"] = v
-					}
+					keyValue["Value"] = v
 
 					appendResource.EnvironmentVariables = append(appendResource.EnvironmentVariables, keyValue)
 				}
@@ -172,35 +167,46 @@ func applyContainerDefinitionPatch(ctx context.Context, container *gabs.Containe
 	}
 
 	if len(patch.EnvironmentVariables) > 0 {
+		originalVars := make(map[string]struct{})
+		finalEnvironment := make(map[string]*gabs.Container)
+		keys := make([]string, 0, len(patch.EnvironmentVariables)+len(container.S("Environment").Children()))
+
+		for _, kv := range container.S("Environment").Children() {
+			k := kv.S("Name").Data().(string)
+			keys = append(keys, k)
+			finalEnvironment[k] = kv.S("Value")
+			originalVars[k] = struct{}{}
+		}
 		_, err = container.Set([]interface{}{}, "Environment")
 
 		if err != nil {
 			return fmt.Errorf("could not add environment variable container: %w", err)
 		}
-	}
 
-	keys := make([]string, 0, len(patch.EnvironmentVariables))
-	for k := range patch.EnvironmentVariables {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	for _, k := range keys {
-		keyValue := make(map[string]interface{})
-		keyValue["Name"] = k
-		v := patch.EnvironmentVariables[k]
-		if configuration.ParameterizeEnvars && !v.Exists("Ref") {
-			keyValue["Value"] = map[string]interface{}{"Ref": getParameterName(k)}
-		} else {
-			keyValue["Value"] = v
+		for k := range patch.EnvironmentVariables {
+			if _, ok := finalEnvironment[k]; !ok {
+				v := patch.EnvironmentVariables[k]
+				if configuration.ParameterizeEnvars && !v.Exists("Ref") {
+					v = gabs.Wrap(map[string]interface{}{"Ref": getParameterName(k)})
+				}
+				patch.EnvironmentVariables[k] = v
+				finalEnvironment[k] = v
+				keys = append(keys, k)
+			}
 		}
+		sort.Strings(keys)
 
-		_, err = container.Set(keyValue, "Environment", "-")
+		for _, k := range keys {
+			keyValue := make(map[string]interface{})
+			keyValue["Name"] = k
+			keyValue["Value"] = finalEnvironment[k].Data()
 
-		if err != nil {
-			return fmt.Errorf("could not add environment variable %v: %w", keyValue, err)
+			_, err = container.Set(keyValue, "Environment", "-")
+
+			if err != nil {
+				return fmt.Errorf("could not add environment variable %v: %w", keyValue, err)
+			}
 		}
-
 	}
 
 	if len(patch.Capabilities) > 0 {
