@@ -37,20 +37,23 @@ func extractContainerInfo(ctx context.Context, group *gabs.Container, groupName 
 			}
 		}
 
-		os.Setenv("HOME", "/tmp") // crane requires $HOME variable
-		repoInfo, err := GetConfigFromRepository(info.Image.String())
-		if err != nil {
-			l.Warn().Str("image", info.Image.String()).Err(err).Msg("could not retrieve metadata from repository")
-		} else {
-			if configuration.UseRepositoryHints {
-				l.Info().Str("image", info.Image.String()).Msgf("extracted info from remote repository: %+v", repoInfo)
-				if repoInfo.Entrypoint != nil {
-					info.EntryPoint = gabs.New()
-					info.EntryPoint.Set(repoInfo.Entrypoint)
-				}
-				if repoInfo.Command != nil {
-					info.Command = gabs.New()
-					info.Command.Set(repoInfo.Command)
+		if configuration.UseRepositoryHints {
+			os.Setenv("HOME", "/tmp") // crane requires $HOME variable
+			image, ok := info.Image.Data().(string)
+			if ok {
+				repoInfo, err := GetConfigFromRepository(image)
+				if err != nil {
+					l.Warn().Str("image", image).Err(err).Msg("could not retrieve metadata from repository")
+				} else {
+					l.Info().Str("image", image).Msgf("extracted info from remote repository: %+v", repoInfo)
+					if repoInfo.Entrypoint != nil {
+						info.EntryPoint = gabs.New()
+						info.EntryPoint.Set(repoInfo.Entrypoint)
+					}
+					if repoInfo.Command != nil {
+						info.Command = gabs.New()
+						info.Command.Set(repoInfo.Command)
+					}
 				}
 			}
 		}
