@@ -2,7 +2,7 @@ name: Quality Gate
 
 on:
   pull_request:
-    branches: [ master ]
+    branches: [ dev ]
 
 env:
   GO_VERSION: 1.20.x
