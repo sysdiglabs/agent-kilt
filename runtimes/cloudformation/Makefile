@@ -11,4 +11,7 @@ clean:
 	rm agent-kilt.zip || true
 	rm cmd/handler/handler || true
 
-.PHONY: clean
+test:
+	go test -v ./...
+
+.PHONY: clean test

@@ -43,8 +43,7 @@ jobs:
 
       - name: Test
         run: |
-          cd runtimes/cloudformation
-          go test -v ./...
+          make -C runtimes/cloudformation test
 
   build-cfn-runtime:
     name: Build CloudFormation runtime

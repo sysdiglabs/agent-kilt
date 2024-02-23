@@ -11,7 +11,10 @@ import (
 func fillContainerInfo(ctx context.Context, container *gabs.Container, parameters *gabs.Container, configuration *Configuration) {
 	l := log.Ctx(ctx)
 
-	if container.Exists("Command") && container.Exists("EntryPoint") {
+	hasOverriddenEntrypoint := container.Exists("EntryPoint")
+	hasOverriddenCommand := container.Exists("Command")
+
+	if hasOverriddenEntrypoint && hasOverriddenCommand {
 		return
 	}
 
@@ -44,10 +47,14 @@ func fillContainerInfo(ctx context.Context, container *gabs.Container, parameter
 		if err != nil {
 			l.Warn().Str("image", image).Err(err).Msg("could not retrieve metadata from repository")
 		} else {
-			if repoInfo.Entrypoint != nil {
+			// Use the image's entrypoint if the task definition does not override it
+			if repoInfo.Entrypoint != nil && !hasOverriddenEntrypoint {
+				l.Info().Str("image", container.S("Image").String()).Msgf("using default entrypoint %s", repoInfo.Entrypoint)
 				container.Set(repoInfo.Entrypoint, "EntryPoint")
 			}
-			if repoInfo.Command != nil {
+			// Use the image's command if the task definition overrides neither the entrypoint nor the command
+			if repoInfo.Command != nil && !hasOverriddenCommand && !hasOverriddenEntrypoint {
+				l.Info().Str("image", container.S("Image").String()).Msgf("using default command %s", repoInfo.Command)
 				container.Set(repoInfo.Command, "Command")
 			}
 		}

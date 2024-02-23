@@ -47,6 +47,13 @@ var defaultTests = [...]string{
 	"patching/volumes_from",
 }
 
+var enableHints = [...]string{
+	"patching/hints_no_overrides",
+	"patching/hints_override_command",
+	"patching/hints_override_entrypoint",
+	"patching/hints_override_entrypoint_command",
+}
+
 var parameterizedEnvarsTests = [...]string{
 	"patching/parameterize_env_add",
 	"patching/parameterize_env_merge",
@@ -200,6 +207,22 @@ func TestPatching(t *testing.T) {
 					OptIn:              false,
 					RecipeConfig:       "{}",
 					UseRepositoryHints: false,
+				})
+		})
+	}
+}
+
+func TestPatchingWithRepoHints(t *testing.T) {
+	l := log.Output(zerolog.ConsoleWriter{Out: os.Stderr}).With().Caller().Logger()
+
+	for _, testName := range enableHints {
+		t.Run(testName, func(t *testing.T) {
+			runTest(t, testName, l.WithContext(context.Background()),
+				Configuration{
+					Kilt:               defaultConfig,
+					OptIn:              false,
+					RecipeConfig:       "{}",
+					UseRepositoryHints: true,
 				})
 		})
 	}
