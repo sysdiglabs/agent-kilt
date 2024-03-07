@@ -2,12 +2,12 @@
 This kilt runtime alters cloud formation templates to apply kilt definitions.
 It installs a Cloud Formation Macro that will alter the incoming template.
 
-##Components
+## Components
 
-* installer - installer for the macro
-* cmd/handler - the golang lambda functions powering the Macro
-* cmd/cfn-apply-kilt - applies kilt transformation to a CFN template
-* cmd/cfn-image-info - gets configuration for the image from repository
+* `installer` - installer for the macro
+* `cmd/handler` - the golang lambda functions powering the Macro
+* `cmd/cfn-apply-kilt` - applies kilt transformation to a CFN template
+* `cmd/cfn-image-info` - gets configuration for the image from repository
 
 
 # Usage
