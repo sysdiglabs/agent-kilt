@@ -3,8 +3,9 @@ module github.com/sysdiglabs/agent-kilt/pkg
 go 1.21
 
 require (
+	github.com/Jeffail/gabs/v2 v2.7.0
 	github.com/go-akka/configuration v0.0.0-20200606091224-a002c0330665
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 )
 
 require (
