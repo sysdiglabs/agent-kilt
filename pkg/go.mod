@@ -1,6 +1,6 @@
 module github.com/sysdiglabs/agent-kilt/pkg
 
-go 1.20
+go 1.21
 
 require (
 	github.com/go-akka/configuration v0.0.0-20200606091224-a002c0330665
