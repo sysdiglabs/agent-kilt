@@ -59,5 +59,5 @@ It will trigger the [release-runtime.yml](.github/workflows/release-runtimes.yml
 
 For tags, use [semver](https://semver.org/).
 
-Before making a new release, check the diff between the previous tag and `master` branch,
+Before making a new release, check the diff between the previous tag and `dev` branch,
 to spot major changes to make release notes as clear as possible.
