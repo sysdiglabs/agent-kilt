@@ -4,15 +4,15 @@ import (
 	"strings"
 )
 
-const KiltIgnoreTag = "kilt-ignore"
-const KiltIncludeTag = "kilt-include"
-const KiltIgnoreContainersTag = "kilt-ignore-containers"
-const KiltIncludeContainersTag = "kilt-include-containers"
+const kiltIgnoreTag = "kilt-ignore"
+const kiltIncludeTag = "kilt-include"
+const kiltIgnoreContainersTag = "kilt-ignore-containers"
+const kiltIncludeContainersTag = "kilt-include-containers"
 
-var OptTagKeys = []string{KiltIgnoreTag, KiltIncludeTag, KiltIgnoreContainersTag, KiltIncludeContainersTag}
+var optTagKeys = []string{kiltIgnoreTag, kiltIncludeTag, kiltIgnoreContainersTag, kiltIncludeContainersTag}
 
 func isOptTagKey(key string) bool {
-	for _, v := range OptTagKeys {
+	for _, v := range optTagKeys {
 		if key == v {
 			return true
 		}
@@ -30,18 +30,18 @@ func extractContainersFromTag(tags map[string]string, tag string) []string {
 }
 
 func extractHintsFromTags(tags map[string]string) *InstrumentationHints {
-	_, included := tags[KiltIncludeTag]
+	_, included := tags[kiltIncludeTag]
 	return &InstrumentationHints{
-		IgnoreContainersNamed:  extractContainersFromTag(tags, KiltIgnoreContainersTag),
-		IncludeContainersNamed: extractContainersFromTag(tags, KiltIncludeContainersTag),
+		IgnoreContainersNamed:  extractContainersFromTag(tags, kiltIgnoreContainersTag),
+		IncludeContainersNamed: extractContainersFromTag(tags, kiltIncludeContainersTag),
 		HasGlobalInclude:       included,
 	}
 }
 
 func isIgnored(tags map[string]string, isOptIn bool) bool {
-	_, included := tags[KiltIncludeTag]
-	_, ignored := tags[KiltIgnoreTag]
-	_, hasNamedContainerIncluded := tags[KiltIncludeContainersTag]
+	_, included := tags[kiltIncludeTag]
+	_, ignored := tags[kiltIgnoreTag]
+	_, hasNamedContainerIncluded := tags[kiltIncludeContainersTag]
 
 	return !((isOptIn && (included || hasNamedContainerIncluded)) || (!isOptIn && !ignored))
 }
