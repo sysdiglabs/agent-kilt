@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-Description: Sysdig Serverless Orchestrator Agent (__VERSION_STRING__)
+Description: Sysdig Serverless Orchestrator Agent (dev)
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -145,7 +145,7 @@ Parameters:
 
   SysdigOrchestratorAgentImage:
     Type: String
-    Default: quay.io/sysdig/orchestrator-agent:__RELEASE_VERSION__
+    Default: quay.io/sysdig/orchestrator-agent:latest
 
   SysdigCheckCollectorCertificate:
     Type: String

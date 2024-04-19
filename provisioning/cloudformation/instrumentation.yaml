@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-Description: Sysdig Serverless Instrumentation Stack (__VERSION_STRING__)
+Description: Sysdig Serverless Instrumentation Stack (dev)
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -85,12 +85,12 @@ Parameters:
   SysdigServerlessPatcherImage:
     Type: String
     Description: Will patch your template to install the Sysdig Workload Agent - Must be hosted on an ECR private registry
-    Default: "quay.io/sysdig/serverless-patcher:__RELEASE_VERSION__"
+    Default: "quay.io/sysdig/serverless-patcher:latest"
 
   SysdigWorkloadAgentImage:
     Type: String
     Description: The Sysdig Agent that will secure your workload
-    Default: "quay.io/sysdig/workload-agent:__RELEASE_VERSION__"
+    Default: "quay.io/sysdig/workload-agent:latest"
 
   SysdigPriority:
     Type: String
