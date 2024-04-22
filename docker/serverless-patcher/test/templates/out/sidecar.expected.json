@@ -1,0 +1,236 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Httpd.",
+  "Parameters": {
+    "Subnet": {
+      "Default": "subnet-12345",
+      "Type": "AWS::EC2::Subnet::Id"
+    },
+    "VPC": {
+      "Default": "vpc-12345",
+      "Type": "AWS::EC2::VPC::Id"
+    }
+  },
+  "Resources": {
+    "ContainerSecurityGroup": {
+      "Properties": {
+        "GroupDescription": "Httpd",
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "FromPort": 0,
+            "IpProtocol": "tcp",
+            "ToPort": 65535
+          }
+        ],
+        "VpcId": {
+          "Ref": "VPC"
+        }
+      },
+      "Type": "AWS::EC2::SecurityGroup"
+    },
+    "ECSCluster": {
+      "Type": "AWS::ECS::Cluster"
+    },
+    "ExecutionRole": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com"
+              }
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+        ]
+      },
+      "Type": "AWS::IAM::Role"
+    },
+    "LogGroup": {
+      "Type": "AWS::Logs::LogGroup"
+    },
+    "Service": {
+      "Properties": {
+        "Cluster": {
+          "Ref": "ECSCluster"
+        },
+        "DeploymentConfiguration": {
+          "MaximumPercent": 200,
+          "MinimumHealthyPercent": 100
+        },
+        "DesiredCount": 1,
+        "LaunchType": "FARGATE",
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "AssignPublicIp": "ENABLED",
+            "SecurityGroups": [
+              {
+                "Ref": "ContainerSecurityGroup"
+              }
+            ],
+            "Subnets": [
+              {
+                "Ref": "Subnet"
+              }
+            ]
+          }
+        },
+        "PlatformVersion": "1.4.0",
+        "ServiceName": "SDSDemoSvc",
+        "TaskDefinition": {
+          "Ref": "TaskDefinition"
+        }
+      },
+      "Type": "AWS::ECS::Service"
+    },
+    "TaskDefinition": {
+      "DependsOn": "LogGroup",
+      "Properties": {
+        "ContainerDefinitions": [
+          {
+            "Command": [
+              "/bin/event-generator"
+            ],
+            "EntryPoint": [
+              "/opt/draios/bin/instrument"
+            ],
+            "Environment": [
+              {
+                "Name": "Hammer",
+                "Value": "ToFall"
+              },
+              {
+                "Name": "SYSDIG_ACCESS_KEY",
+                "Value": ""
+              },
+              {
+                "Name": "SYSDIG_AGENT_NICE_VALUE_INCREMENT",
+                "Value": ""
+              },
+              {
+                "Name": "SYSDIG_COLLECTOR",
+                "Value": ""
+              },
+              {
+                "Name": "SYSDIG_COLLECTOR_PORT",
+                "Value": ""
+              },
+              {
+                "Name": "SYSDIG_LOGGING",
+                "Value": "info"
+              },
+              {
+                "Name": "SYSDIG_PRIORITY",
+                "Value": ""
+              },
+              {
+                "Name": "SYSDIG_ORCHESTRATOR",
+                "Value": ""
+              },
+              {
+                "Name": "SYSDIG_ORCHESTRATOR_PORT",
+                "Value": ""
+              },
+              {
+                "Name": "SYSDIG_SIDECAR",
+                "Value": "auto"
+              }
+            ],
+            "Image": "falcosecurity/event-generator",
+            "LinuxParameters": {
+              "Capabilities": {
+                "Add": [
+                  "SYS_PTRACE"
+                ]
+              }
+            },
+            "LogConfiguration": {
+              "LogDriver": "awslogs",
+              "Options": {
+                "awslogs-group": {
+                  "Ref": "LogGroup"
+                },
+                "awslogs-region": {
+                  "Ref": "AWS::Region"
+                },
+                "awslogs-stream-prefix": "ecs"
+              }
+            },
+            "Name": "friedPotatoes",
+            "VolumesFrom": [
+              {
+                "ReadOnly": true,
+                "SourceContainer": "SysdigInstrumentation"
+              }
+            ]
+          },
+          {
+            "EntryPoint": [
+              "/opt/draios/bin/sidecar"
+            ],
+            "Environment": [
+              {
+                "Name": "Hammer",
+                "Value": "ToFall"
+              },
+              {
+                "Name": "SYSDIG_ACCESS_KEY",
+                "Value": ""
+              },
+              {
+                "Name": "SYSDIG_AGENT_NICE_VALUE_INCREMENT",
+                "Value": ""
+              },
+              {
+                "Name": "SYSDIG_COLLECTOR",
+                "Value": ""
+              },
+              {
+                "Name": "SYSDIG_COLLECTOR_PORT",
+                "Value": ""
+              },
+              {
+                "Name": "SYSDIG_LOGGING",
+                "Value": "info"
+              },
+              {
+                "Name": "SYSDIG_PRIORITY",
+                "Value": ""
+              },
+              {
+                "Name": "SYSDIG_ORCHESTRATOR",
+                "Value": ""
+              },
+              {
+                "Name": "SYSDIG_ORCHESTRATOR_PORT",
+                "Value": ""
+              },
+              {
+                "Name": "SYSDIG_SIDECAR",
+                "Value": "auto"
+              }
+            ],
+            "Image": "quay.io/sysdig/workload-agent:latest",
+            "Name": "SysdigInstrumentation"
+          }
+        ],
+        "Cpu": 256,
+        "ExecutionRoleArn": {
+          "Ref": "ExecutionRole"
+        },
+        "Memory": "0.5GB",
+        "NetworkMode": "awsvpc",
+        "PidMode": "task",
+        "RequiresCompatibilities": [
+          "FARGATE"
+        ]
+      },
+      "Type": "AWS::ECS::TaskDefinition"
+    }
+  }
+}
