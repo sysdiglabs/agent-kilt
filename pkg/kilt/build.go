@@ -154,9 +154,9 @@ func applyPatch(container *gabs.Container, config *configuration.Config, patchCo
 
 	entryPoint := gabs.New()
 	entryPoint.Set(make([]interface{}, 0))
-	rawEntryPoint := config.GetValue("build.entry_point").GetArray()
+	rawEntryPoint := config.GetValue("build.entry_point")
 	if rawEntryPoint != nil {
-		for _, c := range rawEntryPoint {
+		for _, c := range rawEntryPoint.GetArray() {
 			entryPoint.ArrayAppend(renderHoconValue(c))
 		}
 	}
@@ -167,9 +167,9 @@ func applyPatch(container *gabs.Container, config *configuration.Config, patchCo
 
 	command := gabs.New()
 	command.Set(make([]interface{}, 0))
-	rawCommand := config.GetValue("build.command").GetArray()
+	rawCommand := config.GetValue("build.command")
 	if rawCommand != nil {
-		for _, c := range rawCommand {
+		for _, c := range rawCommand.GetArray() {
 			command.ArrayAppend(renderHoconValue(c))
 		}
 	}
