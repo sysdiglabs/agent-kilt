@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/Jeffail/gabs/v2 v2.7.0
 	github.com/aws/aws-lambda-go v1.47.0
-	github.com/aws/aws-sdk-go v1.54.13
+	github.com/aws/aws-sdk-go v1.54.15
 	github.com/google/go-containerregistry v0.19.2
 	github.com/rs/zerolog v1.33.0
 	github.com/stretchr/testify v1.9.0
