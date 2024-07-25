@@ -42,4 +42,4 @@ jobs:
           files: |
             agent-kilt.zip
             checksums.txt
-          tag_name: ${{ github.ref }}
+          name: ${{ github.ref_name }}
