@@ -66,6 +66,10 @@ var taskPidModeTests = [...]string{
 	"task_pid_mode/command",
 }
 
+var taskRuntimePlatform = [...]string{
+	"task_runtime_platform/cpu_architecture",
+}
+
 const defaultConfig = `
 build {
 	entry_point: ["/kilt/run", "--"]
@@ -136,6 +140,27 @@ build {
 }
 task {
 	pid_mode: "task"
+}
+`
+
+const taskCpuArchitecture = `
+build {
+	entry_point: ["/kilt/run", "--"]
+	command: [] ${?original.entry_point} ${?original.command}
+	mount: [
+		{
+			name: "KiltImage"
+			image: "KILT:latest"
+			volumes: ["/kilt"]
+			entry_point: ["/kilt/wait"]
+		}
+	]
+	capabilities: ["SYS_PTRACE"]
+}
+task {
+	runtime_platform {
+		cpu_architecture: "X86_64"
+	}
 }
 `
 
@@ -255,6 +280,18 @@ func TestPatchingTask(t *testing.T) {
 				})
 		})
 	}
+
+	for _, testName := range taskRuntimePlatform {
+        t.Run(testName, func(t *testing.T) {
+            runTest(t, testName, l.WithContext(context.Background()),
+                Configuration{
+                    Kilt:               taskCpuArchitecture,
+                    OptIn:              false,
+                    RecipeConfig:       "{}",
+                    UseRepositoryHints: false,
+                })
+        })
+    }
 }
 
 func TestPatchingForParameterizingEnvars(t *testing.T) {

@@ -155,6 +155,14 @@ func (k *KiltHocon) PatchTaskDefinition(taskdef *gabs.Container, patchConfig *Pa
 		}
 	}
 
+	if config.HasPath("task.runtime_platform.cpu_architecture") {
+        cpuArchitecture := config.GetString("task.runtime_platform.cpu_architecture")
+        _, err = taskdef.Set(cpuArchitecture, "Properties", "RuntimePlatform", "CpuArchitecture")
+        if err != nil {
+            return fmt.Errorf("could not set the CpuArchitecture: %w", err)
+        }
+    }
+
 	containerDefinitions := taskdef.S("Properties", "ContainerDefinitions")
 	if containerDefinitions != nil {
 		err := k.patchContainerDefinitions(containerDefinitions, patchConfig, groupName, filter)
