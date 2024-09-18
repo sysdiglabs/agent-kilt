@@ -1,6 +1,6 @@
 module github.com/sysdiglabs/agent-kilt/runtimes/cloudformation
 
-go 1.22
+go 1.23
 
 require (
 	github.com/Jeffail/gabs/v2 v2.7.0
@@ -9,14 +9,14 @@ require (
 	github.com/google/go-containerregistry v0.20.2
 	github.com/rs/zerolog v1.33.0
 	github.com/stretchr/testify v1.9.0
-	github.com/sysdiglabs/agent-kilt/pkg v0.0.0-20240725105437-d4b770a76411
+	github.com/sysdiglabs/agent-kilt/pkg v0.0.0-20240808103223-011d2ea63e8a
 	github.com/yudai/gojsondiff v1.0.0
 )
 
 require (
 	github.com/containerd/stargz-snapshotter/estargz v0.15.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/docker/cli v27.1.1+incompatible // indirect
+	github.com/docker/cli v27.2.1+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.2 // indirect
 	github.com/go-akka/configuration v0.0.0-20200606091224-a002c0330665 // indirect
@@ -37,7 +37,7 @@ require (
 	github.com/vbatts/tar-split v0.11.5 // indirect
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	github.com/yudai/pp v2.0.1+incompatible // indirect
-	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
