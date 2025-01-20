@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -140,7 +139,7 @@ task {
 `
 
 func runTest(t *testing.T, name string, context context.Context, config Configuration) {
-	fragment, err := ioutil.ReadFile("fixtures/" + name + ".json")
+	fragment, err := os.ReadFile("fixtures/" + name + ".json")
 	if err != nil {
 		t.Fatalf("cannot find fixtures/%s.json", name)
 	}
@@ -149,10 +148,10 @@ func runTest(t *testing.T, name string, context context.Context, config Configur
 	if err != nil {
 		t.Fatalf("error patching: %s", err.Error())
 	}
-	expected, err := ioutil.ReadFile("fixtures/" + name + ".patched.json")
+	expected, err := os.ReadFile("fixtures/" + name + ".patched.json")
 	if err != nil {
 		// To regenerate test simply delete patched variant
-		_ = ioutil.WriteFile("fixtures/"+name+".patched.json", result, 0644)
+		_ = os.WriteFile("fixtures/"+name+".patched.json", result, 0644)
 		return
 	}
 
