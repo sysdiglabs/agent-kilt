@@ -19,7 +19,9 @@
           },
           {
             "Key": "kilt-ignore",
-            "Value": "ignoretagisignored"
+            "Value": {
+              "Ref": "ignoretagisignored"
+            }
           }
         ],
         "ContainerDefinitions": [
