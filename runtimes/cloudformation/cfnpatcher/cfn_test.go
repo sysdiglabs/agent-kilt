@@ -326,7 +326,11 @@ func TestOptTagPanic(t *testing.T) {
 
 	for _, testName := range optPanicTests {
 		t.Run(testName, func(t *testing.T) {
-			defer func() { recover() }()
+			defer func() {
+				if r := recover(); r == nil {
+					t.Errorf("Expected panic for test %s but got none", testName)
+				}
+			}()
 
 			runTest(t, testName, l.WithContext(context.Background()),
 				Configuration{
