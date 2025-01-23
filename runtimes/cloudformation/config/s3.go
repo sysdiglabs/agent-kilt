@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -34,7 +34,7 @@ func FromS3(path string, decompress bool) string {
 		panic(fmt.Errorf("could not retrieve %s: %w", path, err))
 	}
 
-	config, err := ioutil.ReadAll(obj.Body)
+	config, err := io.ReadAll(obj.Body)
 	defer obj.Body.Close()
 
 	if err != nil {

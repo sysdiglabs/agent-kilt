@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/rs/zerolog"
@@ -16,13 +15,13 @@ func main() {
 		_, _ = fmt.Fprintf(os.Stderr, "Usage: %s KILT_DEFINITION TEMPLATE\n", os.Args[0])
 		return
 	}
-	kiltDef, err := ioutil.ReadFile(os.Args[1])
+	kiltDef, err := os.ReadFile(os.Args[1])
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "Cannot read kilt definition %s: %s\n", os.Args[1], err)
 		return
 	}
 
-	template, err := ioutil.ReadFile(os.Args[2])
+	template, err := os.ReadFile(os.Args[2])
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "Cannot read template %s: %s\n", os.Args[2], err)
 		return
