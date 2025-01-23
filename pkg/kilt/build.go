@@ -179,12 +179,10 @@ func applyPatch(container *gabs.Container, config *configuration.Config, patchCo
 	}
 
 	capabilities := config.GetStringList("build.capabilities")
-	if capabilities != nil {
-		for _, c := range capabilities {
-			err = container.ArrayAppend(c, "LinuxParameters", "Capabilities", "Add")
-			if err != nil {
-				return nil, fmt.Errorf("could not append to LinuxParameters.Capabilities.Add: %w", err)
-			}
+	for _, c := range capabilities {
+		err = container.ArrayAppend(c, "LinuxParameters", "Capabilities", "Add")
+		if err != nil {
+			return nil, fmt.Errorf("could not append to LinuxParameters.Capabilities.Add: %w", err)
 		}
 	}
 
@@ -229,7 +227,7 @@ func applyPatch(container *gabs.Container, config *configuration.Config, patchCo
 				})
 
 				sidecarEntryPoint := mount.GetKey("entry_point").GetStringList()
-				if sidecarEntryPoint != nil && len(sidecarEntryPoint) > 0 {
+				if len(sidecarEntryPoint) > 0 {
 					sidecar.Set(sidecarEntryPoint, "EntryPoint")
 				}
 

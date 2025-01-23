@@ -1,17 +1,18 @@
 package kilt
 
 import (
-	"github.com/Jeffail/gabs/v2"
 	"os"
 	"testing"
+
+	"github.com/Jeffail/gabs/v2"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func toStringOrEmpty(c interface{}) string {
-	switch c.(type) {
+	switch c := c.(type) {
 	case string:
-		return c.(string)
+		return c
 	default:
 		return ""
 	}
