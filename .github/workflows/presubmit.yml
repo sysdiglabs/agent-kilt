@@ -2,63 +2,61 @@ name: presubmit
 
 on:
   pull_request:
-    branches: [ dev ]
+    branches:
+      - dev
 
 env:
   GO_VERSION: 1.23.x
+  GOLINT_ARGS: -v --allow-parallel-runners --timeout=10m --disable errcheck
 
 jobs:
-  test-pkg-lib:
-    name: Test pkg lib
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Set up Go
+      - name: Checkout ⤵️
+        uses: actions/checkout@v4
+
+      - name: Setup Go 🛠️
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
-        id: go
 
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Test
+      - name: Test pkg library 🔎
         run: |
           cd pkg
-          go test -v ./...
+          go test ./...
 
-  test-cfn-runtime:
-    name: Test CloudFormation Runtime
+      - name: Test CloudFormation runtime 🔎
+        run: |
+          cd runtimes/cloudformation
+          go test ./...
+      
+      - name: Lint pkg library 🪥
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.60
+          working-directory: ./pkg
+          args: ${{ env.GOLINT_ARGS }}
+      
+      - name: Lint CloudFormation runtime 🪥
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.60
+          working-directory: ./runtimes/cloudformation/cmd/handler
+          args: ${{ env.GOLINT_ARGS }}
+
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Set up Go
+      - name: Checkout ⤵️
+        uses: actions/checkout@v4
+
+      - name: Setup Go 🛠️
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
-        id: go
 
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Test
+      - name: Build handler 🏗️
         run: |
-          make -C runtimes/cloudformation test
-
-  build-cfn-runtime:
-    name: Build CloudFormation runtime
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-        id: go
-
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Build agent-kilt handler
-        run: |
-          make -C runtimes/cloudformation clean cmd/handler/handler
+          cd runtimes/cloudformation/cmd/handler
+          go build .
