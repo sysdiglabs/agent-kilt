@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/Jeffail/gabs/v2"
 	"os"
 	"strings"
+
+	"github.com/Jeffail/gabs/v2"
 
 	"github.com/sysdiglabs/agent-kilt/runtimes/cloudformation/config"
 
@@ -31,12 +32,17 @@ type MacroOutput struct {
 	Fragment  json.RawMessage `json:"fragment"`
 }
 
+var (
+	version = "dev"
+)
+
 func HandleRequest(configuration *cfnpatcher.Configuration, ctx context.Context, event MacroInput) (MacroOutput, error) {
 	l := log.With().
 		Str("region", event.Region).
 		Str("account", event.AccountID).
 		Str("requestId", event.RequestID).
 		Str("transformId", event.TransformID).
+		Str("handlerVersion", version).
 		Logger()
 	loggerCtx := l.WithContext(ctx)
 	result, err := cfnpatcher.Patch(loggerCtx, configuration, event.Fragment, event.TemplateParameterValues)
@@ -50,6 +56,7 @@ func HandleRequest(configuration *cfnpatcher.Configuration, ctx context.Context,
 func PatchLocalFile(configuration *cfnpatcher.Configuration, ctx context.Context, inputFile string) ([]byte, error) {
 	l := log.With().
 		Str("region", "local").
+		Str("handlerVersion", version).
 		Logger()
 	loggerCtx := l.WithContext(ctx)
 
