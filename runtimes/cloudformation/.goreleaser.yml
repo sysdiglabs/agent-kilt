@@ -27,5 +27,34 @@ builds:
       - -X main.commit={{ .Commit }}
       - -X main.date={{ .Date }}
 
+  - id: fips
+    no_unique_dist_dir: true
+    binary: handler-fips/handler-{{ .Os }}-{{ .Arch }}
+    main: ./cmd/handler
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    goamd64:
+      - v1
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    tags:
+      - fips
+    env:
+      - GOEXPERIMENT=boringcrypto
+      - CGO_ENABLED=1
+      - >-
+        {{- if and (eq .Os "linux") (eq .Arch "amd64") }}CC=zig c++ -target x86_64-linux-gnu{{- end }}
+        {{- if and (eq .Os "linux") (eq .Arch "arm64") }}CC=zig c++ -target aarch64-linux-gnu{{- end }}
+      - >-
+        {{- if and (eq .Os "linux") (eq .Arch "amd64") }}CXX=zig c++ -target x86_64-linux-gnu{{- end }}
+        {{- if and (eq .Os "linux") (eq .Arch "arm64") }}CXX=zig c++ -target aarch64-linux-gnu{{- end }}
+    ldflags:
+      - -s -w
+      - -X main.version={{ .Version }}
+      - -X main.commit={{ .Commit }}
+      - -X main.date={{ .Date }}
+
 snapshot:
   version_template: "{{ .Env.BUILD_VERSION }}"
