@@ -54,7 +54,7 @@ jobs:
           BUILD_VERSION: ${{ github.ref_name }}
           GORELEASER_CURRENT_TAG: "0.0.0"
 
-      - name: Archive Artifacts
+      - name: Archive Artifacts 🗄️
         uses: actions/upload-artifact@v4
         with:
           name: handler-${{ github.ref_name }}
@@ -66,6 +66,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          fail_on_unmatched_files: true
+          name: handler-${{ github.ref_name }}
           files: |
             ./runtimes/cloudformation/dist/*
-          name: ${{ github.ref_name }}
+            ./runtimes/cloudformation/dist/handler/*
