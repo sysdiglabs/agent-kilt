@@ -67,5 +67,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
-            ./runtimes/cloudformation/dist
+            ./runtimes/cloudformation/dist/*
           name: ${{ github.ref_name }}
