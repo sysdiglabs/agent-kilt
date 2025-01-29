@@ -1,0 +1,31 @@
+version: 2
+
+project_name: launcher
+
+archives:
+  - id: launcher
+    formats: ["binary"]
+
+builds:
+  - id: default
+    no_unique_dist_dir: true
+    binary: handler/handler-{{ .Os }}-{{ .Arch }}
+    main: ./cmd/handler
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    goamd64:
+      - v1
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+      - -X main.version={{ .Version }}
+      - -X main.commit={{ .Commit }}
+      - -X main.date={{ .Date }}
+
+snapshot:
+  version_template: "{{ .Env.BUILD_VERSION }}"

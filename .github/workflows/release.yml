@@ -21,34 +21,39 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
 
-      - name: Test pkg library 🔎
+      - name: Test pkg library 🧪
         run: |
           cd pkg
-          go test ./...
+          go test -race -mod=readonly ./...
 
-      - name: Lint pkg library 🪥
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: v1.60
-          working-directory: ./pkg
-          args: ${{ env.GOLINT_ARGS }}
-
-      - name: Test CloudFormation runtime 🔎
+      - name: Test 🧪
         run: |
           cd runtimes/cloudformation
-          go test ./...
-      
-      - name: Lint CloudFormation runtime 🪥
+          go test -race -mod=readonly ./...
+
+      - name: Lint 🪥
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.60
           working-directory: ./runtimes/cloudformation/cmd/handler
           args: ${{ env.GOLINT_ARGS }}
 
-      - name: Build handler 🏗️
-        run: |
-          cd runtimes/cloudformation/cmd/handler
-          go build .
+      - name: Run GoReleaser  🏗️
+        id: goreleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          args: build --clean --snapshot --parallelism=1
+          workdir: ./runtimes/cloudformation
+        env:
+          BUILD_VERSION: ${{ github.ref_name }}
+          GORELEASER_CURRENT_TAG: "0.0.0"
+
+      - name: Archive Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: handler-${{ github.ref_name }}
+          path: |
+            ./runtimes/cloudformation/dist
 
       - name: Create release 🌟
         uses: softprops/action-gh-release@v2
@@ -56,5 +61,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
-            runtimes/cloudformation/cmd/handler/handler
+            ./runtimes/cloudformation/dist
           name: ${{ github.ref_name }}
