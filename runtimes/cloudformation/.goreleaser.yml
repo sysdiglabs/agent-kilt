@@ -1,9 +1,9 @@
 version: 2
 
-project_name: launcher
+project_name: handler
 
 archives:
-  - id: launcher
+  - id: handler
     formats: ["binary"]
 
 builds:
@@ -29,7 +29,7 @@ builds:
 
   - id: fips
     no_unique_dist_dir: true
-    binary: handler-fips/handler-{{ .Os }}-{{ .Arch }}
+    binary: handler/handler-fips-{{ .Os }}-{{ .Arch }}
     main: ./cmd/handler
     goos:
       - linux
