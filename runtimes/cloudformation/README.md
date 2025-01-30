@@ -4,11 +4,17 @@ It installs a Cloud Formation Macro that will alter the incoming template.
 
 ## Components
 
-* `installer` - installer for the macro
-* `cmd/handler` - the golang lambda functions powering the Macro
-* `cmd/cfn-apply-kilt` - applies kilt transformation to a CFN template
-* `cmd/cfn-image-info` - gets configuration for the image from repository
+### Commands
 
+* `cmd/handler` - the golang lambda functions powering the Macro
+* `cmd/cfn-apply-kilt` - test application that applies kilt transformation to a CFN template
+* `cmd/cfn-image-info` - test application that gets configuration for an image from repository
+
+The `handler` is the main deliverable and the other applications exist to test and demo the functionality.
+
+### Patcher
+
+The `cfnpatcher` is a general library to apply migrations to a template.
 
 # Usage
 The installer will create a CFN macro that you can use to apply automatically
