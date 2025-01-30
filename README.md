@@ -2,8 +2,6 @@
 
 `agent-kilt` provides a convenient way to add additional software to containers by patching ECS TaskDefinitions.
 
-
-
 Kilt is a definition on how to include additional software inside containers. It was created to run falco in userspace
 along other software. It leverages different runtimes to perform modifications to the container
 
@@ -29,6 +27,7 @@ is not running yet. Run time is well, you get it.
     * **build.mount.image** `str` - the image that contains the volume of the mount
     * **build.mount.volumes** `List(str)` - List of paths to be mounted on the target image
     * **build.mount.entry_point** `List(str)` - The entry point of the image (needed for patching runtimes)
+
 ### Example
 ```
 build {
@@ -49,13 +48,11 @@ build {
 }
 ```
 
-
-
 # Release
 
 To make a new release push a new tag. 
 
-It will trigger the [release-runtime.yml](.github/workflows/release-runtimes.yml) workflow.
+It will trigger the [release](.github/workflows/release.yml) workflow.
 
 For tags, use [semver](https://semver.org/).
 
