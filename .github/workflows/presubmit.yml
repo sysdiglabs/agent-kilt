@@ -6,7 +6,7 @@ on:
       - dev
 
 env:
-  GO_VERSION: 1.23.x
+  GO_VERSION: 1.24.x
   ZIG_VERSION: 0.13.0
   GOLINT_ARGS: -v --allow-parallel-runners --timeout=10m --disable errcheck
 
@@ -50,7 +50,7 @@ jobs:
       - name: Lint 🪥
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.60
+          version: v1.64
           working-directory: ./runtimes/cloudformation/cmd/handler
           args: ${{ env.GOLINT_ARGS }}
 
