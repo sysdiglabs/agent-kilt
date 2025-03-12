@@ -41,6 +41,7 @@ var defaultTests = [...]string{
 	"patching/ref_tags",
 	"patching/tags",
 	"patching/volumes_from",
+	"patching/dynamic_image",
 }
 
 var enableHints = [...]string{
