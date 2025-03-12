@@ -2,6 +2,7 @@ package cfnpatcher
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/Jeffail/gabs/v2"
@@ -23,6 +24,7 @@ func fillContainerInfo(ctx context.Context, container *gabs.Container, parameter
 	}
 
 	var image string
+	// If the image is a reference to a parameter, resolve it
 	if container.Exists("Image", "Ref") {
 		l.Info().Str("image", container.S("Image").String()).Msg("retrieving image from template parameters")
 
@@ -38,14 +40,22 @@ func fillContainerInfo(ctx context.Context, container *gabs.Container, parameter
 			l.Warn().Str("image", container.S("Image").String()).Msg("could not find the name of the image parameter")
 		}
 	} else {
-		image = container.S("Image").Data().(string)
+		tag := container.S("Image").Data()
+		switch v := tag.(type) {
+		case string:
+			// If the image is a string, use it as is
+			image = v
+		default:
+			// Otherwise, convert it to a raw string
+			image = fmt.Sprintf("%v", v)
+		}
 	}
 
 	if configuration.UseRepositoryHints {
 		os.Setenv("HOME", "/tmp") // crane requires $HOME variable
 		repoInfo, err := GetConfigFromRepository(image)
 		if err != nil {
-			l.Warn().Str("image", image).Err(err).Msg("could not retrieve metadata from repository")
+			l.Err(err).Msg("The entrypoint and command of the image must be manually set in the original template")
 		} else {
 			// Use the image's entrypoint if the task definition does not override it
 			if repoInfo.Entrypoint != nil && !hasOverriddenEntrypoint {
