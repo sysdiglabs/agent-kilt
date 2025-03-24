@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-lambda-go v1.47.0
 	github.com/aws/aws-sdk-go v1.55.6
 	github.com/google/go-containerregistry v0.20.3
-	github.com/rs/zerolog v1.33.0
+	github.com/rs/zerolog v1.34.0
 	github.com/stretchr/testify v1.10.0
 	github.com/sysdiglabs/agent-kilt/pkg v0.0.0-20250205094401-98be48437f5c
 	github.com/yudai/gojsondiff v1.0.0
