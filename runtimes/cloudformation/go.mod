@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/Jeffail/gabs/v2 v2.7.0
-	github.com/aws/aws-lambda-go v1.47.0
+	github.com/aws/aws-lambda-go v1.48.0
 	github.com/aws/aws-sdk-go v1.55.6
 	github.com/google/go-containerregistry v0.20.3
 	github.com/rs/zerolog v1.34.0
