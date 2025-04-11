@@ -9,7 +9,7 @@ require (
 	github.com/google/go-containerregistry v0.20.3
 	github.com/rs/zerolog v1.34.0
 	github.com/stretchr/testify v1.10.0
-	github.com/sysdiglabs/agent-kilt/pkg v0.0.0-20250410191821-e9735d3dd2c4
+	github.com/sysdiglabs/agent-kilt/pkg v0.0.0-replace
 	github.com/yudai/gojsondiff v1.0.0
 )
 
@@ -41,3 +41,5 @@ require (
 	golang.org/x/sys v0.32.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/sysdiglabs/agent-kilt/pkg v0.0.0-replace => ../../pkg
