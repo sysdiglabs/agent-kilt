@@ -1,6 +1,6 @@
 module github.com/sysdiglabs/agent-kilt/pkg
 
-go 1.24
+go 1.23.8
 
 require (
 	github.com/Jeffail/gabs/v2 v2.7.0
