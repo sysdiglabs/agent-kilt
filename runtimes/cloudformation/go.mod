@@ -1,11 +1,11 @@
 module github.com/sysdiglabs/agent-kilt/runtimes/cloudformation
 
-go 1.24
+go 1.24.2
 
 require (
 	github.com/Jeffail/gabs/v2 v2.7.0
 	github.com/aws/aws-lambda-go v1.48.0
-	github.com/aws/aws-sdk-go v1.55.6
+	github.com/aws/aws-sdk-go v1.55.7
 	github.com/google/go-containerregistry v0.20.3
 	github.com/rs/zerolog v1.34.0
 	github.com/stretchr/testify v1.10.0
@@ -16,7 +16,7 @@ require (
 require (
 	github.com/containerd/stargz-snapshotter/estargz v0.16.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/docker/cli v28.0.4+incompatible // indirect
+	github.com/docker/cli v28.1.1+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.9.3 // indirect
 	github.com/go-akka/configuration v0.0.0-20200606091224-a002c0330665 // indirect
