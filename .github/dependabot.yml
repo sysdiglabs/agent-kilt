@@ -2,12 +2,7 @@ version: 2
 
 updates:
   - package-ecosystem: "gomod"
-    directory: "/runtimes/cloudformation"
-    schedule:
-      interval: "daily"
-
-  - package-ecosystem: "gomod"
-    directory: "/pkg"
+    directory: "/cmd"
     schedule:
       interval: "daily"
 

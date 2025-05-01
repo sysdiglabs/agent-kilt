@@ -1,17 +1,14 @@
-module github.com/sysdiglabs/agent-kilt/runtimes/cloudformation
+module github.com/sysdiglabs/agent-kilt
 
 go 1.24.4
 
-replace github.com/sysdiglabs/agent-kilt/pkg v0.0.0-replace => ../../pkg
-
 require (
 	github.com/Jeffail/gabs/v2 v2.7.0
-	github.com/aws/aws-lambda-go v1.49.0
 	github.com/aws/aws-sdk-go v1.55.7
+	github.com/go-akka/configuration v0.0.0-20200606091224-a002c0330665
 	github.com/google/go-containerregistry v0.20.6
 	github.com/rs/zerolog v1.34.0
 	github.com/stretchr/testify v1.10.0
-	github.com/sysdiglabs/agent-kilt/pkg v0.0.0-replace
 	github.com/yudai/gojsondiff v1.0.0
 )
 
@@ -21,7 +18,6 @@ require (
 	github.com/docker/cli v28.2.2+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.9.3 // indirect
-	github.com/go-akka/configuration v0.0.0-20200606091224-a002c0330665 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
