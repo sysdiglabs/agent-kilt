@@ -1,5 +1,3 @@
 .idea/
 
-/runtimes/cloudformation/cmd/cfn-apply-kilt/cfn-apply-kilt
-/runtimes/cloudformation/cmd/cfn-image-info/cfn-image-info
-/runtimes/cloudformation/dist
+/dist

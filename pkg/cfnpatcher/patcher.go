@@ -3,10 +3,10 @@ package cfnpatcher
 import (
 	"context"
 	"fmt"
-	"github.com/sysdiglabs/agent-kilt/pkg/kilt"
 
 	"github.com/Jeffail/gabs/v2"
 	"github.com/rs/zerolog/log"
+	kilt "github.com/sysdiglabs/agent-kilt/internal"
 )
 
 func containerInConfig(name string, listOfNames []string) bool {

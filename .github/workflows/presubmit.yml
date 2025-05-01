@@ -37,21 +37,15 @@ jobs:
         with:
           version: ${{ env.ZIG_VERSION }}
 
-      - name: Test pkg library 🧪
-        run: |
-          cd pkg
-          go test -race -mod=readonly ./...
-
       - name: Test 🧪
         run: |
-          cd runtimes/cloudformation
           go test -race -mod=readonly ./...
 
       - name: Lint 🪥
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.64.8
-          working-directory: ./runtimes/cloudformation/cmd/handler
+          working-directory: ./cmd/
           args: ${{ env.GOLINT_ARGS }}
 
       - name: Run GoReleaser  🏗️
@@ -59,7 +53,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v6
         with:
           args: build --clean --snapshot --parallelism=1
-          workdir: ./runtimes/cloudformation
+          workdir: ./
         env:
           BUILD_VERSION: ${{ steps.version.outputs.GIT_SHA_SHORT }}
           GORELEASER_CURRENT_TAG: "0.0.0"
@@ -69,4 +63,4 @@ jobs:
         with:
           name: handler-${{ steps.version.outputs.GIT_SHA_SHORT }}
           path: |
-            ./runtimes/cloudformation/dist
+            ./dist
