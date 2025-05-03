@@ -19,20 +19,16 @@ build {
 
 type KiltHocon struct {
 	definition    string
-	config        string
+	recipeConfig  string
 	sidecarConfig interface{}
 }
 
-func NewKiltHocon(definition string) *KiltHocon {
-	return NewKiltHoconWithConfig(definition, "{}", nil)
-}
-
-func NewKiltHoconWithConfig(definition string, recipeConfig string, sidecarConfig interface{}) *KiltHocon {
-	h := new(KiltHocon)
-	h.definition = definition
-	h.config = recipeConfig
-	h.sidecarConfig = sidecarConfig
-	return h
+func NewKiltHocon(definition string, recipeConfig string, sidecarConfig interface{}) *KiltHocon {
+	return &KiltHocon{
+		definition:    definition,
+		recipeConfig:  recipeConfig,
+		sidecarConfig: sidecarConfig,
+	}
 }
 
 func (k *KiltHocon) prepareFullStringConfig(container *gabs.Container, groupName string) (*configuration.Config, error) {
@@ -87,7 +83,7 @@ func (k *KiltHocon) prepareFullStringConfig(container *gabs.Container, groupName
 	}
 
 	configString := string(rawVars) + "\n" +
-		"config:" + k.config + "\n" +
+		"config:" + k.recipeConfig + "\n" +
 		"sidecar_config:" + string(sidecarConfig) + "\n" +
 		defaults + "\n" +
 		k.definition

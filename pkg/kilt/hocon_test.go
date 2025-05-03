@@ -60,7 +60,7 @@ func TestSimpleBuild(t *testing.T) {
 	containers, groupName := readInput("./fixtures/input.json")
 	definitionString, _ := os.ReadFile("./fixtures/kilt.cfg")
 
-	k := NewKiltHocon(string(definitionString))
+	k := NewKiltHocon(string(definitionString), "{}", nil)
 	err := k.patchContainerDefinitions(containers, &PatchConfig{}, groupName, yes)
 	if err != nil {
 		panic(err)
@@ -78,7 +78,7 @@ func TestEnvironmentVariables(t *testing.T) {
 	containers, groupName := readInput("./fixtures/env_vars_input.json")
 	definitionString, _ := os.ReadFile("./fixtures/kilt_env_vars.cfg")
 
-	k := NewKiltHocon(string(definitionString))
+	k := NewKiltHocon(string(definitionString), "{}", nil)
 	err := k.patchContainerDefinitions(containers, &PatchConfig{}, groupName, yes)
 	if err != nil {
 		panic(err)

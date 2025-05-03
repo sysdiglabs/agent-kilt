@@ -39,7 +39,7 @@ func applyParametersPatch(ctx context.Context, template *gabs.Container, configu
 		ParametrizeEnvars: configuration.ParameterizeEnvars,
 	}
 
-	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig, nil)
+	k := kilt.NewKiltHocon(configuration.Kilt, configuration.RecipeConfig, nil)
 	err := k.PatchCfnTemplate(template, &patchConfig)
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func applyTaskDefinitionPatch(ctx context.Context, name string, resource, parame
 		ParametrizeEnvars: configuration.ParameterizeEnvars,
 	}
 
-	k := kilt.NewKiltHoconWithConfig(configuration.Kilt, configuration.RecipeConfig, sidecarConfig)
+	k := kilt.NewKiltHocon(configuration.Kilt, configuration.RecipeConfig, sidecarConfig)
 	err = k.PatchTaskDefinition(resource, &patchConfig, name, func(container *gabs.Container) bool {
 		if shouldSkip(container, configuration, hints) {
 			l.Info().Msgf("skipping container due to hints in tags")
