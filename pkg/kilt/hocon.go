@@ -31,38 +31,40 @@ func NewKiltHocon(definition string, recipeConfig string, sidecarConfig interfac
 	}
 }
 
-func (k *KiltHocon) prepareFullStringConfig(container *gabs.Container, groupName string) (*configuration.Config, error) {
-	rawVars := ""
+func serializeContainerConfiguration(container *gabs.Container, groupName string) (string, error) {
+	var serialized string
+	var jsonDoc []byte
+	var err error
 
-	jsonDoc, err := json.Marshal(container.S("Image"))
+	jsonDoc, err = json.Marshal(container.S("Image"))
 	if err != nil {
-		return nil, fmt.Errorf("could not serialize container image: %w", err)
+		return "", fmt.Errorf("could not serialize container image: %w", err)
 	}
-	rawVars += "original.image:" + string(jsonDoc) + "\n"
+	serialized += "original.image:" + string(jsonDoc) + "\n"
 
 	jsonDoc, err = json.Marshal(container.S("Name"))
 	if err != nil {
-		return nil, fmt.Errorf("could not serialize container name: %w", err)
+		return "", fmt.Errorf("could not serialize container name: %w", err)
 	}
-	rawVars += "original.container_name:" + string(jsonDoc) + "\n"
+	serialized += "original.container_name:" + string(jsonDoc) + "\n"
 
 	jsonDoc, err = json.Marshal(groupName)
 	if err != nil {
-		return nil, fmt.Errorf("could not serialize container group name: %w", err)
+		return "", fmt.Errorf("could not serialize container group name: %w", err)
 	}
-	rawVars += "original.container_group_name:" + string(jsonDoc) + "\n"
+	serialized += "original.container_group_name:" + string(jsonDoc) + "\n"
 
 	jsonDoc, err = json.Marshal(container.S("EntryPoint"))
 	if err != nil {
-		return nil, fmt.Errorf("could not serialize container entry point: %w", err)
+		return "", fmt.Errorf("could not serialize container entry point: %w", err)
 	}
-	rawVars += "original.entry_point:" + string(jsonDoc) + "\n"
+	serialized += "original.entry_point:" + string(jsonDoc) + "\n"
 
 	jsonDoc, err = json.Marshal(container.S("Command"))
 	if err != nil {
-		return nil, fmt.Errorf("could not serialize container command: %w", err)
+		return "", fmt.Errorf("could not serialize container command: %w", err)
 	}
-	rawVars += "original.command:" + string(jsonDoc) + "\n"
+	serialized += "original.command:" + string(jsonDoc) + "\n"
 
 	rawEnvMap := make(map[string]interface{})
 	for _, env := range container.S("Environment").Children() {
@@ -70,9 +72,18 @@ func (k *KiltHocon) prepareFullStringConfig(container *gabs.Container, groupName
 	}
 	jsonDoc, err = json.Marshal(rawEnvMap)
 	if err != nil {
-		return nil, fmt.Errorf("could not serialize container environment variables: %w", err)
+		return "", fmt.Errorf("could not serialize container environment variables: %w", err)
 	}
-	rawVars += "original.environment_variables:" + string(jsonDoc) + "\n"
+	serialized += "original.environment_variables:" + string(jsonDoc) + "\n"
+
+	return serialized, nil
+}
+
+func (k *KiltHocon) prepareFullStringConfig(container *gabs.Container, groupName string) (*configuration.Config, error) {
+	containerConfig, err := serializeContainerConfiguration(container, groupName)
+	if err != nil {
+		return nil, err
+	}
 
 	sidecarConfig := []byte("{}")
 	if k.sidecarConfig != nil {
@@ -82,7 +93,8 @@ func (k *KiltHocon) prepareFullStringConfig(container *gabs.Container, groupName
 		}
 	}
 
-	configString := string(rawVars) + "\n" +
+	configString :=
+		containerConfig + "\n" +
 		"config:" + k.recipeConfig + "\n" +
 		"sidecar_config:" + string(sidecarConfig) + "\n" +
 		defaults + "\n" +
