@@ -87,3 +87,37 @@ func TestEnvironmentVariables(t *testing.T) {
 	container := containers.S("0")
 	assert.Equal(t, "true", *getEnvByName(container, "PREEXISTING"))
 }
+
+func Test_serializeContainerConfiguration(t *testing.T) {
+	containerJson := `{
+		"Image": "busybox:latest",
+		"Name": "busybox",
+		"EntryPoint": ["/bin/sh"],
+		"Command": ["-c", "echo hello"],
+		"Environment": [
+			{"Name": "TEST", "Value": "true"}
+		]
+	}`
+
+	expected := `original.image:"busybox:latest"
+original.container_name:"busybox"
+original.container_group_name:"test-group"
+original.entry_point:["/bin/sh"]
+original.command:["-c","echo hello"]
+original.environment_variables:{"TEST":"true"}
+`
+
+	container, err := gabs.ParseJSON([]byte(containerJson))
+	if err != nil {
+		t.Fatalf("failed to parse JSON: %v", err)
+	}
+
+	groupName := "test-group"
+
+	serialized, err := serializeContainerConfiguration(container, groupName)
+	if err != nil {
+		t.Fatalf("failed to marshal container configuration: %v", err)
+	}
+
+	assert.Equal(t, expected, serialized)
+}
