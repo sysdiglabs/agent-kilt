@@ -6,7 +6,7 @@ replace github.com/sysdiglabs/agent-kilt/pkg v0.0.0-replace => ../../pkg
 
 require (
 	github.com/Jeffail/gabs/v2 v2.7.0
-	github.com/aws/aws-lambda-go v1.48.0
+	github.com/aws/aws-lambda-go v1.49.0
 	github.com/aws/aws-sdk-go v1.55.7
 	github.com/google/go-containerregistry v0.20.3
 	github.com/rs/zerolog v1.34.0
