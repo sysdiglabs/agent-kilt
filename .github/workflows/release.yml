@@ -7,7 +7,7 @@ on:
 
 env:
   GO_VERSION: 1.24.4
-  ZIG_VERSION: 0.13.0
+  LINTER_VERSION: v1.64.8
   GOLINT_ARGS: -v --allow-parallel-runners --timeout=10m --disable errcheck
 
 jobs:
@@ -22,16 +22,6 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
 
-      - name: Setup Zig 🛠️
-        uses: mlugg/setup-zig@v1.2.1
-        with:
-          version: ${{ env.ZIG_VERSION }}
-
-      - name: Test pkg library 🧪
-        run: |
-          cd pkg
-          go test -race -mod=readonly ./...
-
       - name: Test 🧪
         run: |
           cd runtimes/cloudformation
@@ -40,34 +30,14 @@ jobs:
       - name: Lint 🪥
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.64.8
-          working-directory: ./runtimes/cloudformation/cmd/handler
+          version: ${{ env.LINTER_VERSION }}
+          working-directory: ./
           args: ${{ env.GOLINT_ARGS }}
-
-      - name: Run GoReleaser  🏗️
-        id: goreleaser
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          args: build --clean --snapshot --parallelism=1
-          workdir: ./runtimes/cloudformation
-        env:
-          BUILD_VERSION: ${{ github.ref_name }}
-          GORELEASER_CURRENT_TAG: "0.0.0"
-
-      - name: Archive Artifacts 🗄️
-        uses: actions/upload-artifact@v4
-        with:
-          name: handler-${{ github.ref_name }}
-          path: |
-            ./runtimes/cloudformation/dist
 
       - name: Create release 🌟
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          fail_on_unmatched_files: true
-          name: handler-${{ github.ref_name }}
-          files: |
-            ./runtimes/cloudformation/dist/*
-            ./runtimes/cloudformation/dist/handler/*
+          generate_release_notes: true
+          make_latest: true
