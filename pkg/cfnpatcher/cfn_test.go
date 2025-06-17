@@ -160,7 +160,7 @@ func runTest(t *testing.T, name string, context context.Context, config Configur
 	fmt.Printf("expected: %s\n", expected)
 
 	differ := diff.New()
-	d, err := differ.Compare(expected, result)
+	d, _ := differ.Compare(expected, result)
 
 	if d.Modified() {
 		var expectedJson map[string]interface{}

@@ -21,9 +21,9 @@ func containerInConfig(name string, listOfNames []string) bool {
 func shouldSkip(container *gabs.Container, configuration *Configuration, hints *InstrumentationHints) bool {
 	containerNameData := container.S("Name").Data()
 	var containerName string
-	switch containerNameData.(type) {
+	switch v := containerNameData.(type) {
 	case string:
-		containerName = containerNameData.(string)
+		containerName = v
 	default:
 		containerName = container.S("Name").String()
 	}

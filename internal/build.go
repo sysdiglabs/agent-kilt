@@ -2,11 +2,12 @@ package kilt
 
 import (
 	"fmt"
-	"github.com/Jeffail/gabs/v2"
-	"github.com/go-akka/configuration/hocon"
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/Jeffail/gabs/v2"
+	"github.com/go-akka/configuration/hocon"
 
 	"github.com/go-akka/configuration"
 )
@@ -92,7 +93,7 @@ func patchEnvironment(container *gabs.Container, env *hocon.HoconValue, overwrit
 	}
 
 	keys := make([]string, 0, len(envMap))
-	for k, _ := range envMap {
+	for k := range envMap {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
