@@ -24,7 +24,6 @@ jobs:
 
       - name: Test 🧪
         run: |
-          cd runtimes/cloudformation
           go test -race -mod=readonly ./...
 
       - name: Lint 🪥
