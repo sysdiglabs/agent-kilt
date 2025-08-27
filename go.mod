@@ -9,7 +9,7 @@ require (
 	github.com/go-akka/configuration v0.0.0-20200606091224-a002c0330665
 	github.com/google/go-containerregistry v0.20.6
 	github.com/rs/zerolog v1.34.0
-	github.com/stretchr/testify v1.11.0
+	github.com/stretchr/testify v1.11.1
 	github.com/yudai/gojsondiff v1.0.0
 )
 
