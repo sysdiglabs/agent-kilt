@@ -5,16 +5,18 @@ import (
 	"io"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"context"
+
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 func FromS3(path string, decompress bool) string {
 
-	sess, err := session.NewSession()
+	cfg, err := config.LoadDefaultConfig(context.TODO())
 
 	if err != nil {
-		panic(fmt.Errorf("could not create aws session: %w", err))
+		panic(fmt.Errorf("could not load default aws config: %w", err))
 	}
 
 	splitPath := strings.SplitN(path, "/", 2)
@@ -23,9 +25,9 @@ func FromS3(path string, decompress bool) string {
 		panic(fmt.Errorf("invalid path specified: expected bucket/objectkey, got '%s'", path))
 	}
 
-	svc := s3.New(sess)
+	svc := s3.NewFromConfig(cfg)
 
-	obj, err := svc.GetObject(&s3.GetObjectInput{
+	obj, err := svc.GetObject(context.TODO(), &s3.GetObjectInput{
 		Bucket: &splitPath[0],
 		Key:    &splitPath[1],
 	})
