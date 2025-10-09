@@ -7,7 +7,7 @@ on:
 
 env:
   GO_VERSION: 1.25.2
-  LINTER_VERSION: v1.64.8
+  LINTER_VERSION: v2.5.0
   GOLINT_ARGS: -v --allow-parallel-runners --timeout=10m --disable errcheck
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
           go test -race -mod=readonly ./...
 
       - name: Lint 🪥
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v8
         with:
           version: ${{ env.LINTER_VERSION }}
           working-directory: ./
