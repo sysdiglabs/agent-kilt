@@ -2,8 +2,9 @@ package cfnpatcher
 
 import (
 	"fmt"
-	"github.com/Jeffail/gabs/v2"
 	"strings"
+
+	"github.com/Jeffail/gabs/v2"
 )
 
 const kiltIgnoreTag = "kilt-ignore"
