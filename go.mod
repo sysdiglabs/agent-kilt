@@ -5,7 +5,7 @@ go 1.24.9
 require (
 	github.com/Jeffail/gabs/v2 v2.7.0
 	github.com/aws/aws-sdk-go-v2/config v1.31.17
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.90.0
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.90.1
 	github.com/go-akka/configuration v0.0.0-20200606091224-a002c0330665
 	github.com/google/go-containerregistry v0.20.6
 	github.com/rs/zerolog v1.34.0
