@@ -27,7 +27,7 @@ jobs:
           go test -race -mod=readonly ./...
 
       - name: Lint 🪥
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v9
         with:
           version: ${{ env.LINTER_VERSION }}
           working-directory: ./
