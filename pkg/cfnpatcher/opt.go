@@ -69,5 +69,5 @@ func isIgnored(tags map[string]string, isOptIn bool) bool {
 	_, ignored := tags[kiltIgnoreTag]
 	_, hasNamedContainerIncluded := tags[kiltIncludeContainersTag]
 
-	return !((isOptIn && (included || hasNamedContainerIncluded)) || (!isOptIn && !ignored))
+	return !((isOptIn && (included || hasNamedContainerIncluded)) || (!isOptIn && !ignored))  //nolint:staticcheck
 }
