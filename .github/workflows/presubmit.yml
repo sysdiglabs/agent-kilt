@@ -6,8 +6,8 @@ on:
       - dev
 
 env:
-  GO_VERSION: 1.25.13
-  LINTER_VERSION: v2.6
+  GO_VERSION: 1.26.8
+  LINTER_VERSION: v2.13
   GOLINT_ARGS: -v --allow-parallel-runners --timeout=10m --disable errcheck
 
 jobs:
